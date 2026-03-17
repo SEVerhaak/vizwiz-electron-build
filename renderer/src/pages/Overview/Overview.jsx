@@ -4,16 +4,16 @@ import butterchurnPresets from "butterchurn-presets";
 import { useNavigate } from "react-router-dom";
 
 const butterchurnLib = butterchurn.default || butterchurn;
-
 const presets = butterchurnPresets.getPresets();
 const presetKeys = Object.keys(presets);
 
 export default function Overview() {
-    const navigate = useNavigate(); // <-- THIS LINE
+    const navigate = useNavigate();
 
     const presetsPerPage = 6;
     const [page, setPage] = useState(0);
     const [currentKeys, setCurrentKeys] = useState([]);
+    const [loading, setLoading] = useState(true);
     const vizRefs = useRef([]);
     const loops = useRef([]);
     const analyserRef = useRef(null);
@@ -26,7 +26,7 @@ export default function Overview() {
         const start = page * presetsPerPage;
         const end = Math.min(start + presetsPerPage, presetKeys.length);
         setCurrentKeys(presetKeys.slice(start, end));
-    }, [page, presetKeys]);
+    }, [page]);
 
     // Cleanup all visualizers on unmount or page change
     useEffect(() => {
@@ -41,6 +41,7 @@ export default function Overview() {
     useEffect(() => {
         vizRefs.current = [];
         loops.current = [];
+        setLoading(true);
 
         const setupMic = async () => {
             try {
@@ -51,6 +52,8 @@ export default function Overview() {
                 analyser.fftSize = 512;
                 source.connect(analyser);
                 analyserRef.current = analyser;
+
+                let initializedCount = 0;
 
                 currentKeys.forEach((key, idx) => {
                     const canvas = document.getElementById(`preview-${idx}`);
@@ -68,26 +71,34 @@ export default function Overview() {
                     viz.loadPreset(presets[key], 0);
                     vizRefs.current.push(viz);
 
-                    // Each canvas has its own animation loop for max FPS
+                    // Each canvas has its own animation loop
                     const renderLoop = () => {
                         if (!analyserRef.current) return;
                         const dataArray = new Uint8Array(analyserRef.current.fftSize);
                         analyserRef.current.getByteTimeDomainData(dataArray);
 
-                        const audioLevels = {
-                            timeByteArray: Array.from(dataArray),
-                            timeByteArrayL: Array.from(dataArray),
-                            timeByteArrayR: Array.from(dataArray),
-                        };
-
-                        viz.render({ elapsedTime: 1 / 60, audioLevels });
+                        viz.render({
+                            elapsedTime: 1 / 60,
+                            audioLevels: {
+                                timeByteArray: Array.from(dataArray),
+                                timeByteArrayL: Array.from(dataArray),
+                                timeByteArrayR: Array.from(dataArray),
+                            },
+                        });
                         loops.current[idx] = requestAnimationFrame(renderLoop);
                     };
 
                     renderLoop();
+
+                    // Track initialization to hide loading overlay
+                    initializedCount++;
+                    if (initializedCount === currentKeys.length) {
+                        setLoading(false);
+                    }
                 });
             } catch (err) {
                 console.error("Microphone access failed:", err);
+                setLoading(false);
             }
         };
 
@@ -103,9 +114,55 @@ export default function Overview() {
         setPage((prev) => (prev < maxPage ? prev + 1 : 0));
     };
 
+    const prevPage = () => {
+        const maxPage = Math.floor((presetKeys.length - 1) / presetsPerPage);
+        setPage((prev) => (prev > 0 ? prev - 1 : maxPage));
+    };
+
     return (
-        <div style={{ padding: "20px", color: "white", background: "#111" }}>
+        <div style={{ padding: "20px", color: "white", background: "#111", minHeight: "100vh", position: "relative" }}>
+            {/* Back Button */}
+            <button
+                onClick={() => navigate("/")}
+                style={{
+                    marginBottom: "20px",
+                    padding: "8px 16px",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    background: "#333",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    marginRight: "10px",
+                }}
+            >
+                ← Back
+            </button>
+
             <h1>Preset Overview</h1>
+
+            {/* Loading overlay */}
+            {loading && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        background: "rgba(0,0,0,0.8)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 100,
+                        fontSize: "24px",
+                        color: "white",
+                    }}
+                >
+                    Loading presets...
+                </div>
+            )}
+
             <div
                 style={{
                     display: "grid",
@@ -128,17 +185,30 @@ export default function Overview() {
                 ))}
             </div>
 
-            <button
-                onClick={nextPage}
-                style={{
-                    marginTop: "20px",
-                    padding: "10px 20px",
-                    fontSize: "16px",
-                    cursor: "pointer",
-                }}
-            >
-                Next 6 Presets
-            </button>
+            <div style={{ marginTop: "20px" }}>
+                <button
+                    onClick={prevPage}
+                    style={{
+                        padding: "10px 20px",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                        marginRight: "10px",
+                    }}
+                >
+                    ← Previous 6 Presets
+                </button>
+
+                <button
+                    onClick={nextPage}
+                    style={{
+                        padding: "10px 20px",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                    }}
+                >
+                    Next 6 Presets →
+                </button>
+            </div>
         </div>
     );
 }

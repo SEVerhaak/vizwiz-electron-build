@@ -9,7 +9,7 @@ export default function App() {
         <Router>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/visualizer/:presetKey" element={<Visualiser />} />
+                <Route path="/visualizer/:presetKey?" element={<Visualiser />} />
                 <Route path="/editor" element={<Editor />} />
                 <Route path="/overview" element={<Overview />} />
             </Routes>

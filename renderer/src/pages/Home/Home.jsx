@@ -15,9 +15,9 @@ export default function Home() {
         }}>
             <h1>My Visualizer App</h1>
             <nav style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "40px" }}>
-                <Link to="/visualiser" style={linkStyle}>Visualizer</Link>
+                <Link to="/visualizer" style={linkStyle}>Visualizer</Link>
                 <Link to="/editor" style={linkStyle}>Editor (coming soon)</Link>
-                <Link to="/overview" style={linkStyle}>Overview (coming soon)</Link>
+                <Link to="/overview" style={linkStyle}>Overview</Link>
             </nav>
         </div>
     );
