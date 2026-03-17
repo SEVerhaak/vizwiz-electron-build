@@ -1,22 +1,26 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow } = require("electron");
+const path = require("path");
 
 function createWindow() {
     const win = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 1200,
+        height: 800,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false // allows JS access to Node APIs
-        }
+            contextIsolation: false,
+        },
     });
 
-    win.loadURL("http://localhost:5173"); // DEV ONLY
-    win.webContents.openDevTools();
+    if (app.isPackaged) {
+        // Production: load built React files
+        win.loadFile(path.join(__dirname, "renderer/dist/index.html"));
+    } else {
+        // Development: load Vite dev server
+        win.loadURL("http://localhost:5173");
+    }
+
+    win.webContents.openDevTools(); // 👈 THIS
 
 }
 
 app.whenReady().then(createWindow);
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
-});

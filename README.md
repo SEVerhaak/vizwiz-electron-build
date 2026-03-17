@@ -28,6 +28,8 @@ cd renderer
 npm install
 ```
 
+---
+
 ## Running the Application (Development):
 
 You will need 2 terminals:
@@ -47,6 +49,7 @@ npm run dev
 
 Electron will open a window and load the React app from the Vite server.
 
+---
 ## Production Build:
 
 1. **Build the React renderer:**
@@ -57,16 +60,51 @@ npm run build
 
 This produces a renderer/dist folder with the built frontend.
 
-2. **Update Electron main.js (if not already) to load production:**
+2. **Build electron app with electron-packager:**
 
-replace **`win.loadURL("http://localhost:5173");`** with **`win.loadFile("renderer/dist/index.html");`**
-
-3. **Start Electron (loads the built React app):**
+  - `NOTE: The bash command belows produces a MacOS .app file for Apple Silicon Macs`
 ```bash
-cd ../
-npm start 
+npx electron-packager . VizWiz --platform=darwin --arch=arm64 --out=dist --overwrite
 ```
 
+**Explanation:**
+
+- `.` → current folder
+
+- `VizWiz` → name of your app
+
+- `--platform=darwin` → macOS
+  - Other platform options:
+    - darwin (macOS)
+    - linux
+    - mas (macOS, specifically for submitting to the Mac App Store)
+    - win32
+
+- `--arch=arm64` → Apple Silicon Mac (use --arch=x64 for Intel/AMD cpu)
+  - Other architecture options:
+    - ia32
+    - x64
+    - armv7l
+    - arm64 (Linux: Electron 1.8.0 and above; Windows: 6.0.8 and above; macOS: 11.0.0-beta.1 and above)
+    - mips64el (Electron 1.8.2-beta.5 to 1.8.8)
+
+- `--out=dist` → output folder
+
+- `--overwrite` → replace existing builds
+
+After it runs, you’ll see:
+`dist/VizWiz-darwin-x64/VizWiz.app`
+
+This is your macOS app that you can run or distribute.
+
+### Optional flags
+- `--icon=icon.icns` → set your app icon
+
+- `--app-version=1.0.0` → set version in app bundle
+
+- `--ignore=node_modules|renderer/src` → exclude unnecessary dev files
+
+---
 ## Notes:
 
 - **Two separate node_modules folders:**
@@ -90,3 +128,5 @@ npm start
 - Node.js >= 18
 - NPM >= 9
 - Electron >= 41
+
+**Optional:** Wine64 for building Windows on MacOS
