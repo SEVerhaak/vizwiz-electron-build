@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import butterchurn from "butterchurn";
 import butterchurnPresets from "butterchurn-presets";
+import { useParams } from "react-router-dom";
 
 export default function Visualizer() {
+    const { presetKey } = useParams(); // get the clicked preset key
+    console.log('Param:')
+    console.log(presetKey)
+
     const butterchurnLib = butterchurn.default || butterchurn;
 
     const canvasRef = useRef(null);
@@ -26,7 +31,17 @@ export default function Visualizer() {
         const presets = butterchurnPresets.getPresets();
         const presetKeys = Object.keys(presets);
 
-        let presetIndex = Math.floor(Math.random() * presetKeys.length);
+
+
+        let presetIndex = presetKey
+            ? presetKeys.indexOf(presetKey)
+            : Math.floor(Math.random() * presetKeys.length);
+        console.log('Index:')
+        console.log(presetIndex)
+        if (presetIndex === -1) presetIndex = Math.floor(Math.random() * presetKeys.length);
+
+
+
         let presetIndexHist = [];
         let presetCycle = true;
         let cycleInterval = null;
@@ -40,6 +55,7 @@ export default function Visualizer() {
             presetSelect.appendChild(option);
         });
 
+        // Load the initial preset
         function loadPreset(index, blend = 5.7) {
             visualizer.loadPreset(presets[presetKeys[index]], blend);
             presetSelect.value = index;
@@ -152,7 +168,8 @@ export default function Visualizer() {
                 console.error("Mic failed:", err);
             });
 
-        nextPreset(0);
+        // nextPreset(0);
+        loadPreset(presetIndex, 0); // URL preset or random fallback
         restartCycleInterval();
 
         // Cleanup (important in React)
@@ -161,7 +178,7 @@ export default function Visualizer() {
             document.removeEventListener("keydown", handleKey);
             if (cycleInterval) clearInterval(cycleInterval);
         };
-    }, []);
+    }, [presetKey]);
 
     return (
         <>
