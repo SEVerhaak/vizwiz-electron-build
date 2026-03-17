@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import butterchurn from "butterchurn";
 import butterchurnPresets from "butterchurn-presets";
 import { useNavigate } from "react-router-dom";
+import "./Overview.css"; // <-- Import the CSS
 
 const butterchurnLib = butterchurn.default || butterchurn;
 const presets = butterchurnPresets.getPresets();
@@ -18,8 +19,8 @@ export default function Overview() {
     const loops = useRef([]);
     const analyserRef = useRef(null);
 
-    const canvasWidth = 160;
-    const canvasHeight = 90;
+    const canvasWidth = 640;
+    const canvasHeight = 360;
 
     // Update current keys when page changes
     useEffect(() => {
@@ -62,8 +63,8 @@ export default function Overview() {
                     const viz = butterchurnLib.createVisualizer(audioContext, canvas, {
                         width: canvasWidth,
                         height: canvasHeight,
-                        mesh_width: 32,
-                        mesh_height: 24,
+                        mesh_width: 64,
+                        mesh_height: 48,
                         pixelRatio: 1,
                         textureRatio: 1,
                     });
@@ -120,94 +121,33 @@ export default function Overview() {
     };
 
     return (
-        <div style={{ padding: "20px", color: "white", background: "#111", minHeight: "100vh", position: "relative" }}>
-            {/* Back Button */}
-            <button
-                onClick={() => navigate("/")}
-                style={{
-                    marginBottom: "20px",
-                    padding: "8px 16px",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    background: "#333",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    marginRight: "10px",
-                }}
-            >
+        <div className="overview-container">
+            <button className="overview-back-button" onClick={() => navigate("/")}>
                 ← Back
             </button>
 
-            <h1>Preset Overview</h1>
+            <h1 className="overview-title">Preset Overview</h1>
 
-            {/* Loading overlay */}
-            {loading && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        background: "rgba(0,0,0,0.8)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        zIndex: 100,
-                        fontSize: "24px",
-                        color: "white",
-                    }}
-                >
-                    Loading presets...
-                </div>
-            )}
+            {loading && <div className="overview-loading">Loading presets...</div>}
 
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(3, 1fr)",
-                    gap: "20px",
-                    marginTop: "20px",
-                }}
-            >
+            <div className="overview-grid">
                 {currentKeys.map((key, idx) => (
-                    <div key={idx} style={{ textAlign: "center" }}>
+                    <div key={idx} className="overview-canvas-wrapper">
                         <canvas
                             id={`preview-${idx}`}
                             width={canvasWidth}
                             height={canvasHeight}
-                            style={{ width: "100%", borderRadius: "8px", cursor: "pointer" }}
+                            className="overview-canvas"
                             onClick={() => navigate(`/visualizer/${encodeURIComponent(key)}`)}
                         />
-                        <p style={{ marginTop: "5px" }}>{key}</p>
+                        <p className="overview-canvas-label">{key}</p>
                     </div>
                 ))}
             </div>
 
-            <div style={{ marginTop: "20px" }}>
-                <button
-                    onClick={prevPage}
-                    style={{
-                        padding: "10px 20px",
-                        fontSize: "16px",
-                        cursor: "pointer",
-                        marginRight: "10px",
-                    }}
-                >
-                    ← Previous 6 Presets
-                </button>
-
-                <button
-                    onClick={nextPage}
-                    style={{
-                        padding: "10px 20px",
-                        fontSize: "16px",
-                        cursor: "pointer",
-                    }}
-                >
-                    Next 6 Presets →
-                </button>
+            <div className="overview-pagination">
+                <button onClick={prevPage}>← Previous 6 Presets</button>
+                <button onClick={nextPage}>Next 6 Presets →</button>
             </div>
         </div>
     );

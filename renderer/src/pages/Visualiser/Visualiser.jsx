@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import butterchurn from "butterchurn";
 import butterchurnPresets from "butterchurn-presets";
 import { useParams } from "react-router-dom";
+import "./Visualiser.css"; // <-- Import CSS
 
 export default function Visualizer() {
     const { presetKey } = useParams(); // get the clicked preset key
@@ -184,25 +185,9 @@ export default function Visualizer() {
         <>
             <select
                 ref={selectRef}
-                style={{
-                    position: "absolute",
-                    top: 10,
-                    left: 10,
-                    zIndex: 10,
-                    padding: 5,
-                    fontSize: 14,
-                    display: dropdownVisible ? "block" : "none"
-                }}
+                className={`visualizer-select ${dropdownVisible ? "visible" : ""}`}
             />
-
-            <canvas
-                ref={canvasRef}
-                style={{
-                    width: "100%",
-                    height: "100%",
-                    display: "block"
-                }}
-            />
+            <canvas ref={canvasRef} className="visualizer-canvas" />
         </>
     );
 }
