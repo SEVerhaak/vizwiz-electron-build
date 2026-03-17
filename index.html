@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Butterchurn Local Visualizer</title>
+    <script src="lib/butterchurn.min.js"></script>
+    <script src="lib/butterchurnPresetsAll.min.js"></script>
+    <script src="lib/imageData.min.js"></script>
+    <script src="renderer.js" defer></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #presetSelect {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            padding: 5px;
+            font-size: 14px;
+            display: none; /* hidden by default */
+        }
+    </style>
+</head>
+
+<body>
+
+<select id="presetSelect"></select>
+
+<canvas id="canvas"></canvas>
+
+</body>
+</html>
