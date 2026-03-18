@@ -5,7 +5,5 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx"; // ← Import your router setup
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <React.StrictMode>
-        <App />  {/* Now App handles routing to Home, Visualiser, Editor, Overview */}
-    </React.StrictMode>
+    <App />
 );

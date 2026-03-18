@@ -12,9 +12,11 @@ export default function Settings() {
     useEffect(() => {
         try {
             const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            console.log(saved);
             if (Array.isArray(saved) && saved.length > 0) {
                 setSelectedPacks(saved);
             } else {
+                console.log('fallback!!!!')
                 setSelectedPacks(["Default"]); // fallback if nothing saved
             }
         } catch {

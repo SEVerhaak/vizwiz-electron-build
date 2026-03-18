@@ -19,8 +19,10 @@ function createWindow() {
     } else {
         // Development: load Vite dev server
         win.loadURL("http://localhost:5173");
-        win.webContents.openDevTools(); // 👈 THIS
     }
+
+    win.webContents.openDevTools();
+
 }
 
 app.whenReady().then(createWindow);

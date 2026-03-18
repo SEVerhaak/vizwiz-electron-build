@@ -5,10 +5,12 @@ import extraPresets from "butterchurn-presets/lib/butterchurnPresetsExtra.min.js
 import extraPresets2 from "butterchurn-presets/lib/butterchurnPresetsExtra2.min.js";
 import presetsNonMinimal from "butterchurn-presets/lib/butterchurnPresetsNonMinimal.min.js";
 import presetsMD1 from "butterchurn-presets/lib/butterchurnPresetsMD1.min.js";
-import {useParams} from "react-router-dom";
+import {useParams, useNavigate} from "react-router-dom";
+
 import "./Visualiser.css"; // <-- Import CSS
 
 export default function Visualizer() {
+    const navigate = useNavigate();
 
     const {presetKey} = useParams(); // get the clicked preset key
 
@@ -160,9 +162,11 @@ export default function Visualizer() {
                 case "B":
                     setDropdownVisible((v) => !v);
                     break;
+                case "Escape":   // ← Added this
+                    navigate("/");  // Go back to homepage
+                    break;
             }
         }
-
         document.addEventListener("keydown", handleKey);
 
         // Audio
