@@ -2,32 +2,47 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const PACKS = ["Default", "Extra", "Extra2", "NonMinimal", "MD1"];
-const STORAGE_KEY = "vizwiz_packs"; // centralized key
+const PACKS_KEY = "vizwiz_packs";
+const VISUALIZER_SETTINGS_KEY = "vizwiz_settings";
 
 export default function Settings() {
     const [selectedPacks, setSelectedPacks] = useState([]);
+    const [presetCycle, setPresetCycle] = useState(true);
+    const [presetCycleLength, setPresetCycleLength] = useState(15000);
+
     const navigate = useNavigate();
 
-    // Load saved settings once on mount
+    // Load packs
     useEffect(() => {
-        try {
-            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            console.log(saved);
-            if (Array.isArray(saved) && saved.length > 0) {
-                setSelectedPacks(saved);
-            } else {
-                console.log('fallback!!!!')
-                setSelectedPacks(["Default"]); // fallback if nothing saved
-            }
-        } catch {
-            setSelectedPacks(["Default"]); // fallback on parse error
+        const saved = JSON.parse(localStorage.getItem(PACKS_KEY));
+        if (Array.isArray(saved) && saved.length > 0) {
+            setSelectedPacks(saved);
+        } else {
+            setSelectedPacks(["Default"]);
         }
     }, []);
 
-    // Save settings whenever selection changes
+    // Save packs
     useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedPacks));
+        localStorage.setItem(PACKS_KEY, JSON.stringify(selectedPacks));
     }, [selectedPacks]);
+
+    // Load visualizer settings
+    useEffect(() => {
+        const saved = JSON.parse(localStorage.getItem(VISUALIZER_SETTINGS_KEY));
+        if (saved) {
+            if (typeof saved.presetCycle === "boolean") setPresetCycle(saved.presetCycle);
+            if (typeof saved.presetCycleLength === "number") setPresetCycleLength(saved.presetCycleLength);
+        }
+    }, []);
+
+    // Save visualizer settings
+    useEffect(() => {
+        localStorage.setItem(
+            VISUALIZER_SETTINGS_KEY,
+            JSON.stringify({ presetCycle, presetCycleLength })
+        );
+    }, [presetCycle, presetCycleLength]);
 
     const togglePack = (pack) => {
         setSelectedPacks((prev) =>
@@ -38,32 +53,64 @@ export default function Settings() {
     };
 
     return (
-        <div style={{ padding: "50px", textAlign: "center", fontFamily: "sans-serif" }}>
+        <div style={{ padding: "50px", fontFamily: "sans-serif" }}>
             <h1>Settings</h1>
 
-            <h2>Select Preset Packs</h2>
+            {/* Preset Packs */}
+            <div style={{ marginBottom: "40px" }}>
+                <h2>Select Preset Packs</h2>
+                {PACKS.map((pack) => (
+                    <div key={pack} style={{ margin: "10px 0" }}>
+                        <label style={{ cursor: "pointer" }}>
+                            <input
+                                type="checkbox"
+                                checked={selectedPacks.includes(pack)}
+                                onChange={() => togglePack(pack)}
+                                style={{ marginRight: "8px" }}
+                            />
+                            {pack}
+                        </label>
+                    </div>
+                ))}
+            </div>
 
-            {PACKS.map((pack) => (
-                <div key={pack} style={{ margin: "10px 0" }}>
-                    <label style={{ cursor: "pointer" }}>
+            {/* Visualizer Settings */}
+            <div style={{
+                border: "1px solid #333",
+                padding: "20px",
+                borderRadius: "8px",
+                marginBottom: "40px"
+            }}>
+                <h2>Visualizer Settings</h2>
+
+                <div style={{ margin: "10px 0" }}>
+                    <label>
                         <input
                             type="checkbox"
-                            checked={selectedPacks.includes(pack)}
-                            onChange={() => togglePack(pack)}
+                            checked={presetCycle}
+                            onChange={() => setPresetCycle(!presetCycle)}
                             style={{ marginRight: "8px" }}
                         />
-                        {pack}
+                        Enable Preset Cycling
                     </label>
                 </div>
-            ))}
 
-            <p style={{ marginTop: "20px" }}>
-                <strong>Selected:</strong> {selectedPacks.join(", ")}
-            </p>
+                <div style={{ margin: "10px 0" }}>
+                    <label>
+                        Preset Cycle Length (ms):
+                        <input
+                            type="number"
+                            value={presetCycleLength}
+                            onChange={(e) => setPresetCycleLength(parseInt(e.target.value, 10) || 0)}
+                            style={{ marginLeft: "8px", width: "100px" }}
+                        />
+                    </label>
+                </div>
+            </div>
 
             <button
                 style={{
-                    marginTop: "30px",
+                    marginTop: "10px",
                     padding: "10px 20px",
                     fontSize: "16px",
                     cursor: "pointer",

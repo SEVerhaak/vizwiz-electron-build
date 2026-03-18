@@ -19,6 +19,16 @@ export default function Visualizer() {
     const canvasRef = useRef(null);
     const selectRef = useRef(null);
 
+    // Retrieve visualizer settings
+    const savedSettings = JSON.parse(localStorage.getItem("vizwiz_settings")) || {};
+    const presetCycle = typeof savedSettings.presetCycle === "boolean" ? savedSettings.presetCycle : true;
+    const presetCycleLength = typeof savedSettings.presetCycleLength === "number" ? savedSettings.presetCycleLength : 15000;
+
+    console.log("Preset Cycle:", presetCycle);
+    console.log("Preset Cycle Length (ms):", presetCycleLength);
+
+
+
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
     useEffect(() => {
@@ -79,9 +89,14 @@ export default function Visualizer() {
         if (presetIndex === -1) presetIndex = Math.floor(Math.random() * presetKeys.length);
 
         let presetIndexHist = [];
-        let presetCycle = true;
         let cycleInterval = null;
-        const presetCycleLength = 15000;
+
+        // Then use them in your existing code
+        if (presetCycle) {
+            cycleInterval = setInterval(() => nextPreset(2.7), presetCycleLength);
+        } else {
+            cycleInterval = null; // don't auto-cycle
+        }
 
         // Populate dropdown
         presetKeys.forEach((key, index) => {
