@@ -73,11 +73,12 @@ export default function Visualizer() {
             });
         });
 
-        const presetKeys = Object.keys(mergedPresets);
+        let presetKeys = Object.keys(mergedPresets);
 
         if (presetKeys.length === 0) {
             console.warn("No preset packs selected, falling back to Default");
             Object.assign(mergedPresets, allPacks.Default);
+            presetKeys = Object.keys(mergedPresets);
         }
 
         console.log("✅ Active preset count:", presetKeys.length);

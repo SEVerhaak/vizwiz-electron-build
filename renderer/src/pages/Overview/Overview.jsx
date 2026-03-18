@@ -1,11 +1,47 @@
 import React, { useEffect, useState, useRef } from "react";
 import butterchurn from "butterchurn";
 import butterchurnPresets from "butterchurn-presets";
+import extraPresets from "butterchurn-presets/lib/butterchurnPresetsExtra.min.js";
+import extraPresets2 from "butterchurn-presets/lib/butterchurnPresetsExtra2.min.js";
+import presetsNonMinimal from "butterchurn-presets/lib/butterchurnPresetsNonMinimal.min.js";
+import presetsMD1 from "butterchurn-presets/lib/butterchurnPresetsMD1.min.js";
 import { useNavigate } from "react-router-dom";
 import "./Overview.css"; // <-- Import the CSS
 
 const butterchurnLib = butterchurn.default || butterchurn;
-const presets = butterchurnPresets.getPresets();
+
+// All packs
+const allPacks = {
+    Default: butterchurnPresets.getPresets(),
+    Extra: extraPresets.getPresets(),
+    Extra2: extraPresets2.getPresets(),
+    NonMinimal: presetsNonMinimal.getPresets(),
+    MD1: presetsMD1.getPresets(),
+};
+
+// Load selected packs
+const selectedPackNames =
+    JSON.parse(localStorage.getItem("vizwiz_packs")) || ["Default"];
+
+// ✅ fallback if empty array
+const effectivePackNames =
+    selectedPackNames.length === 0 ? ["Default"] : selectedPackNames;
+
+// Filter packs
+const activePacks = Object.entries(allPacks).filter(([name]) =>
+    effectivePackNames.includes(name)
+);
+
+// Merge + dedupe
+const presets = {};
+activePacks.forEach(([_, pack]) => {
+    Object.entries(pack).forEach(([key, value]) => {
+        if (!presets[key]) {
+            presets[key] = value;
+        }
+    });
+});
+
 const presetKeys = Object.keys(presets);
 
 export default function Overview() {
