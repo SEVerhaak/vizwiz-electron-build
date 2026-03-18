@@ -3,6 +3,7 @@ import Home from "./pages/Home/Home.jsx";
 import Visualiser from "./pages/Visualiser/Visualiser.jsx";
 import Editor from "./pages/Editor/Editor.jsx";
 import Overview from "./pages/Overview/Overview.jsx";
+import Settings from "./pages/Settings/Settings.jsx";
 
 export default function App() {
     return (
@@ -12,6 +13,7 @@ export default function App() {
                 <Route path="/visualizer/:presetKey?" element={<Visualiser />} />
                 <Route path="/editor" element={<Editor />} />
                 <Route path="/overview" element={<Overview />} />
+                <Route path="/settings" element={<Settings />} />
             </Routes>
         </Router>
     );

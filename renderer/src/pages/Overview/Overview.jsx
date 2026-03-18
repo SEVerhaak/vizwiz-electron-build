@@ -122,9 +122,11 @@ export default function Overview() {
 
     return (
         <div className="overview-container">
-            <button className="overview-back-button" onClick={() => navigate("/")}>
-                ← Back
-            </button>
+            <div className="buttton-container">
+                <button className="overview-back-button" onClick={() => navigate("/")}>
+                    ← Back
+                </button>
+            </div>
 
             <h1 className="overview-title">Preset Overview</h1>
 

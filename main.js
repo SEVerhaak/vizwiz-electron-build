@@ -11,16 +11,16 @@ function createWindow() {
         },
     });
 
+    win.maximize();
+
     if (app.isPackaged) {
         // Production: load built React files
         win.loadFile(path.join(__dirname, "renderer/dist/index.html"));
     } else {
         // Development: load Vite dev server
         win.loadURL("http://localhost:5173");
+        win.webContents.openDevTools(); // 👈 THIS
     }
-
-    win.webContents.openDevTools(); // 👈 THIS
-
 }
 
 app.whenReady().then(createWindow);

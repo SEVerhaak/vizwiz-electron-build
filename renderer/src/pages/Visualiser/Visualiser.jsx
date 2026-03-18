@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import butterchurn from "butterchurn";
 import butterchurnPresets from "butterchurn-presets";
-import { useParams } from "react-router-dom";
+import extraPresets from "butterchurn-presets/lib/butterchurnPresetsExtra.min.js";
+import extraPresets2 from "butterchurn-presets/lib/butterchurnPresetsExtra2.min.js";
+import presetsNonMinimal from "butterchurn-presets/lib/butterchurnPresetsNonMinimal.min.js";
+import presetsMD1 from "butterchurn-presets/lib/butterchurnPresetsMD1.min.js";
+import {useParams} from "react-router-dom";
 import "./Visualiser.css"; // <-- Import CSS
 
 export default function Visualizer() {
-    const { presetKey } = useParams(); // get the clicked preset key
-    console.log('Param:')
-    console.log(presetKey)
+
+    const {presetKey} = useParams(); // get the clicked preset key
 
     const butterchurnLib = butterchurn.default || butterchurn;
 
@@ -29,19 +32,49 @@ export default function Visualizer() {
             textureRatio: 1
         });
 
-        const presets = butterchurnPresets.getPresets();
-        const presetKeys = Object.keys(presets);
+        // Load all packs
+        const allPacks = {
+            Default: butterchurnPresets.getPresets(),
+            Extra: extraPresets.getPresets(),
+            Extra2: extraPresets2.getPresets(),
+            NonMinimal: presetsNonMinimal.getPresets(),
+            MD1: presetsMD1.getPresets(),
+        };
 
+        // Get selected packs from settings
+        const selectedPackNames = JSON.parse(localStorage.getItem("vizwiz_packs")) || ["Default"];
 
+        console.log("🎛️ Selected preset packs:", selectedPackNames);
+
+        // Filter packs
+        const activePacks = Object.entries(allPacks).filter(([name]) =>
+            selectedPackNames.includes(name)
+        );
+
+        // Merge + dedupe
+        const mergedPresets = {};
+        activePacks.forEach(([packName, presets]) => {
+            Object.entries(presets).forEach(([key, value]) => {
+                if (!mergedPresets[key]) {
+                    mergedPresets[key] = value;
+                }
+            });
+        });
+
+        const presetKeys = Object.keys(mergedPresets);
+
+        if (presetKeys.length === 0) {
+            console.warn("No preset packs selected, falling back to Default");
+            Object.assign(mergedPresets, allPacks.Default);
+        }
+
+        console.log("✅ Active preset count:", presetKeys.length);
 
         let presetIndex = presetKey
             ? presetKeys.indexOf(presetKey)
             : Math.floor(Math.random() * presetKeys.length);
-        console.log('Index:')
-        console.log(presetIndex)
+
         if (presetIndex === -1) presetIndex = Math.floor(Math.random() * presetKeys.length);
-
-
 
         let presetIndexHist = [];
         let presetCycle = true;
@@ -58,7 +91,7 @@ export default function Visualizer() {
 
         // Load the initial preset
         function loadPreset(index, blend = 5.7) {
-            visualizer.loadPreset(presets[presetKeys[index]], blend);
+            visualizer.loadPreset(mergedPresets[presetKeys[index]], blend);
             presetSelect.value = index;
         }
 
@@ -134,7 +167,7 @@ export default function Visualizer() {
 
         // Audio
         navigator.mediaDevices
-            .getUserMedia({ audio: true })
+            .getUserMedia({audio: true})
             .then((stream) => {
                 const audioContext = new AudioContext();
                 const source = audioContext.createMediaStreamSource(stream);
@@ -187,7 +220,7 @@ export default function Visualizer() {
                 ref={selectRef}
                 className={`visualizer-select ${dropdownVisible ? "visible" : ""}`}
             />
-            <canvas ref={canvasRef} className="visualizer-canvas" />
+            <canvas ref={canvasRef} className="visualizer-canvas"/>
         </>
     );
 }

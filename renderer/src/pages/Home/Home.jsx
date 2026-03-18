@@ -13,11 +13,12 @@ export default function Home() {
             color: "white",
             fontFamily: "sans-serif"
         }}>
-            <h1>My Visualizer App</h1>
+            <h1>VizWiz</h1>
             <nav style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "40px" }}>
                 <Link to="/visualizer" style={linkStyle}>Visualizer</Link>
                 <Link to="/editor" style={linkStyle}>Editor (coming soon)</Link>
                 <Link to="/overview" style={linkStyle}>Overview</Link>
+                <Link to="/settings" style={linkStyle}>Settings</Link>
             </nav>
         </div>
     );
