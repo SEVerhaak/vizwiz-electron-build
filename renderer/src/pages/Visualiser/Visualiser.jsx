@@ -27,8 +27,6 @@ export default function Visualizer() {
     console.log("Preset Cycle:", presetCycle);
     console.log("Preset Cycle Length (ms):", presetCycleLength);
 
-
-
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
     useEffect(() => {

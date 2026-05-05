@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import butterchurn from "butterchurn";
 import butterchurnPresets from "butterchurn-presets";
 import extraPresets from "butterchurn-presets/lib/butterchurnPresetsExtra.min.js";
 import extraPresets2 from "butterchurn-presets/lib/butterchurnPresetsExtra2.min.js";
 import presetsNonMinimal from "butterchurn-presets/lib/butterchurnPresetsNonMinimal.min.js";
 import presetsMD1 from "butterchurn-presets/lib/butterchurnPresetsMD1.min.js";
-import { useNavigate } from "react-router-dom";
-import "./Overview.css"; // <-- Import the CSS
+import { useNavigate, useLocation } from "react-router-dom";
+import "./Overview.css";
 
 const butterchurnLib = butterchurn.default || butterchurn;
 
@@ -19,38 +19,16 @@ const allPacks = {
     MD1: presetsMD1.getPresets(),
 };
 
-// Load selected packs
-const selectedPackNames =
-    JSON.parse(localStorage.getItem("vizwiz_packs")) || ["Default"];
-
-// ✅ fallback if empty array
-const effectivePackNames =
-    selectedPackNames.length === 0 ? ["Default"] : selectedPackNames;
-
-// Filter packs
-const activePacks = Object.entries(allPacks).filter(([name]) =>
-    effectivePackNames.includes(name)
-);
-
-// Merge + dedupe
-const presets = {};
-activePacks.forEach(([_, pack]) => {
-    Object.entries(pack).forEach(([key, value]) => {
-        if (!presets[key]) {
-            presets[key] = value;
-        }
-    });
-});
-
-const presetKeys = Object.keys(presets);
-
 export default function Overview() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const presetsPerPage = 6;
+
+    const [selectedPacks, setSelectedPacks] = useState(["Default"]);
     const [page, setPage] = useState(0);
-    const [currentKeys, setCurrentKeys] = useState([]);
     const [loading, setLoading] = useState(true);
+
     const vizRefs = useRef([]);
     const loops = useRef([]);
     const analyserRef = useRef(null);
@@ -58,29 +36,78 @@ export default function Overview() {
     const canvasWidth = 640;
     const canvasHeight = 360;
 
-    // Update current keys when page changes
+    // Load packs from localStorage
+    const loadPacks = () => {
+        const saved = JSON.parse(localStorage.getItem("vizwiz_packs"));
+        if (Array.isArray(saved) && saved.length > 0) {
+            setSelectedPacks(saved);
+        } else {
+            setSelectedPacks(["Default"]);
+        }
+    };
+
     useEffect(() => {
+        loadPacks();
+    }, []);
+
+    // Refresh packs when returning from settings
+    useEffect(() => {
+        if (location.state?.refresh) {
+            loadPacks();
+        }
+    }, [location.state]);
+
+    // Merge selected presets
+    const mergedPresets = useMemo(() => {
+        const effective = selectedPacks.length ? selectedPacks : ["Default"];
+        const merged = {};
+        Object.entries(allPacks)
+            .filter(([name]) => effective.includes(name))
+            .forEach(([_, pack]) => {
+                Object.entries(pack).forEach(([key, value]) => {
+                    if (!merged[key]) merged[key] = value;
+                });
+            });
+        return merged;
+    }, [selectedPacks]);
+
+    const presetKeys = useMemo(() => Object.keys(mergedPresets), [mergedPresets]);
+    const totalPages = Math.ceil(presetKeys.length / presetsPerPage);
+
+    // Reset page when presets change
+    useEffect(() => {
+        setPage(0);
+    }, [presetKeys.length]);
+
+    // Current page keys
+    const currentKeys = useMemo(() => {
         const start = page * presetsPerPage;
-        const end = Math.min(start + presetsPerPage, presetKeys.length);
-        setCurrentKeys(presetKeys.slice(start, end));
-    }, [page]);
+        return presetKeys.slice(start, start + presetsPerPage);
+    }, [page, presetKeys]);
 
-    // Cleanup all visualizers on unmount or page change
-    useEffect(() => {
-        return () => {
-            loops.current.forEach((loop) => cancelAnimationFrame(loop));
-            vizRefs.current = [];
-            loops.current = [];
-        };
-    }, [currentKeys]);
+    // Cleanup visualizers
+    const cleanupVisualizers = () => {
+        loops.current.forEach((loop) => cancelAnimationFrame(loop));
 
-    // Setup microphone and visualizers
-    useEffect(() => {
+        vizRefs.current.forEach((viz) => {
+            if (viz?.gl) {
+                const ext = viz.gl.getExtension("WEBGL_lose_context");
+                ext?.loseContext();
+            }
+        });
+
         vizRefs.current = [];
         loops.current = [];
+    };
+
+    useEffect(() => cleanupVisualizers, []);
+
+    // Setup visualizers
+    useEffect(() => {
+        cleanupVisualizers();
         setLoading(true);
 
-        const setupMic = async () => {
+        const setup = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 const audioContext = new AudioContext();
@@ -90,75 +117,61 @@ export default function Overview() {
                 source.connect(analyser);
                 analyserRef.current = analyser;
 
-                let initializedCount = 0;
+                let initialized = 0;
 
                 currentKeys.forEach((key, idx) => {
-                    const canvas = document.getElementById(`preview-${idx}`);
+                    const canvas = document.getElementById(`preview-${key}`);
                     if (!canvas) return;
 
                     const viz = butterchurnLib.createVisualizer(audioContext, canvas, {
                         width: canvasWidth,
                         height: canvasHeight,
-                        mesh_width: 64,
-                        mesh_height: 48,
-                        pixelRatio: 1,
-                        textureRatio: 1,
                     });
 
-                    viz.loadPreset(presets[key], 0);
+                    viz.loadPreset(mergedPresets[key], 0);
                     vizRefs.current.push(viz);
 
-                    // Each canvas has its own animation loop
-                    const renderLoop = () => {
-                        if (!analyserRef.current) return;
-                        const dataArray = new Uint8Array(analyserRef.current.fftSize);
-                        analyserRef.current.getByteTimeDomainData(dataArray);
+                    const render = () => {
+                        const data = new Uint8Array(analyser.fftSize);
+                        analyser.getByteTimeDomainData(data);
 
                         viz.render({
                             elapsedTime: 1 / 60,
                             audioLevels: {
-                                timeByteArray: Array.from(dataArray),
-                                timeByteArrayL: Array.from(dataArray),
-                                timeByteArrayR: Array.from(dataArray),
+                                timeByteArray: Array.from(data),
+                                timeByteArrayL: Array.from(data),
+                                timeByteArrayR: Array.from(data),
                             },
                         });
-                        loops.current[idx] = requestAnimationFrame(renderLoop);
+
+                        loops.current[idx] = requestAnimationFrame(render);
                     };
 
-                    renderLoop();
+                    render();
 
-                    // Track initialization to hide loading overlay
-                    initializedCount++;
-                    if (initializedCount === currentKeys.length) {
-                        setLoading(false);
-                    }
+                    initialized++;
+                    if (initialized === currentKeys.length) setLoading(false);
                 });
             } catch (err) {
-                console.error("Microphone access failed:", err);
+                console.error(err);
                 setLoading(false);
             }
         };
 
-        setupMic();
+        setup();
 
-        return () => {
-            loops.current.forEach((loop) => cancelAnimationFrame(loop));
-        };
-    }, [currentKeys]);
+        return cleanupVisualizers;
+    }, [currentKeys, mergedPresets]);
 
-    const nextPage = () => {
-        const maxPage = Math.floor((presetKeys.length - 1) / presetsPerPage);
-        setPage((prev) => (prev < maxPage ? prev + 1 : 0));
-    };
-
-    const prevPage = () => {
-        const maxPage = Math.floor((presetKeys.length - 1) / presetsPerPage);
-        setPage((prev) => (prev > 0 ? prev - 1 : maxPage));
-    };
+    // Pagination
+    const nextPage = () => setPage((p) => (p < totalPages - 1 ? p + 1 : 0));
+    const prevPage = () => setPage((p) => (p > 0 ? p - 1 : totalPages - 1));
+    const goToFirstPage = () => setPage(0);
+    const goToLastPage = () => setPage(totalPages - 1);
 
     return (
         <div className="overview-container">
-            <div className="buttton-container">
+            <div className="button-container">
                 <button className="overview-back-button" onClick={() => navigate("/")}>
                     ← Back
                 </button>
@@ -166,26 +179,38 @@ export default function Overview() {
 
             <h1 className="overview-title">Preset Overview</h1>
 
-            {loading && <div className="overview-loading">Loading presets...</div>}
+            <div className="overview-grid-wrapper">
+                {loading && (
+                    <div className="overview-loading-overlay">Loading presets...</div>
+                )}
 
-            <div className="overview-grid">
-                {currentKeys.map((key, idx) => (
-                    <div key={idx} className="overview-canvas-wrapper">
-                        <canvas
-                            id={`preview-${idx}`}
-                            width={canvasWidth}
-                            height={canvasHeight}
-                            className="overview-canvas"
-                            onClick={() => navigate(`/visualizer/${encodeURIComponent(key)}`)}
-                        />
-                        <p className="overview-canvas-label">{key}</p>
-                    </div>
-                ))}
+                <div className="overview-grid">
+                    {currentKeys.map((key) => (
+                        <div key={key} className="overview-canvas-wrapper">
+                            <canvas
+                                id={`preview-${key}`}
+                                width={canvasWidth}
+                                height={canvasHeight}
+                                className="overview-canvas"
+                                onClick={() =>
+                                    navigate(`/visualizer/${encodeURIComponent(key)}`)
+                                }
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <div className="overview-pagination">
-                <button onClick={prevPage}>← Previous 6 Presets</button>
-                <button onClick={nextPage}>Next 6 Presets →</button>
+                <button onClick={goToFirstPage}>⏮ First</button>
+                <button onClick={prevPage}>← Prev</button>
+
+                <span className="overview-page-indicator">
+                    Page {page + 1} of {totalPages}
+                </span>
+
+                <button onClick={nextPage}>Next →</button>
+                <button onClick={goToLastPage}>Last ⏭</button>
             </div>
         </div>
     );

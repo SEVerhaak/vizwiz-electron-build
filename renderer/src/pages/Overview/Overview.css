@@ -1,4 +1,7 @@
 /* Overview.css */
+* {
+    box-sizing: border-box;
+}
 
 .overview-container {
     padding: 20px;
@@ -7,6 +10,11 @@
     min-height: 100vh;
     position: relative;
     font-family: sans-serif;
+
+    width: 100%;
+    max-width: 100vw;   /* 👈 prevents overflow */
+    overflow-x: hidden; /* 👈 safety net */
+    margin: 0 auto;
 }
 
 .overview-back-button {
@@ -40,19 +48,52 @@
     color: white;
 }
 
+[id^="preview-"] {
+    width: 100%;           /* fill the grid cell */
+    height: 100%;          /* fill the grid cell */
+    max-width: 100%;       /* never overflow */
+    max-height: 100%;      /* never overflow */
+    display: block;
+    object-fit: cover;     /* maintain aspect ratio and fill wrapper */
+    border-radius: 8px;
+}
+
 .overview-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    grid-template-rows: repeat(2, 1fr);    /* 2 rows */
     gap: 20px;
-    margin-top: 20px;
+    width: 100%;
+    max-width: 100vw;
 }
 
 .overview-canvas-wrapper {
-    text-align: center;
+    width: 100%;
+    height: 100%;           /* fill the grid cell */
+    aspect-ratio: 16 / 9;   /* keep canvas aspect ratio */
+    overflow: hidden;
+    border-radius: 8px;
 }
 
 .overview-canvas {
     width: 100%;
+    height: 100%;
+    object-fit: cover;      /* fill wrapper, keep ratio */
+    display: block;
+}
+
+.overview-canvas-wrapper {
+    text-align: center;
+    width: 100%;
+    aspect-ratio: 16 / 9;   /* 👈 THIS fixes everything */
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.overview-canvas {
+    width: 100%;
+    height: auto;        /* 👈 keep aspect ratio */
+    display: block;      /* 👈 removes inline spacing issues */
     border-radius: 8px;
     cursor: pointer;
 }
@@ -75,4 +116,59 @@
 .button-container{
     display: flex;
     justify-content: flex-start;
+}
+
+/* Wrapper to allow overlay positioning */
+.overview-grid-wrapper {
+    position: relative;
+}
+
+/* Loading overlay ONLY over the grid */
+.overview-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 600;
+
+    z-index: 10;
+    border-radius: 12px;
+}
+
+/* Optional: make grid slightly blurred while loading */
+.overview-grid-wrapper .overview-grid {
+    transition: filter 0.2s ease;
+}
+
+.overview-grid-wrapper .overview-loading-overlay ~ .overview-grid {
+    filter: blur(2px);
+}
+
+/* Page indicator styling */
+.overview-page-indicator {
+    margin: 0 16px;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.overview-loading-overlay {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
