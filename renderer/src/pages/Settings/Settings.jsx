@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MicrophoneSelector from "./MicrophoneSelector"; // 👈 add this
+import { Link } from "react-router-dom";
 
 const PACKS = ["Default", "Extra", "Extra2", "NonMinimal", "MD1"];
 const PACKS_KEY = "vizwiz_packs";
@@ -112,21 +113,21 @@ export default function Settings() {
                 <MicrophoneSelector />
             </div>
 
-            <button
+            <Link
+                to="/"
                 style={{
+                    display: "inline-block",
                     marginTop: "10px",
                     padding: "10px 20px",
                     fontSize: "16px",
-                    cursor: "pointer",
                     borderRadius: "5px",
                     backgroundColor: "#333",
                     color: "white",
-                    border: "none"
+                    textDecoration: "none"
                 }}
-                onClick={() => navigate("/")}
             >
                 Back to Home
-            </button>
+            </Link>
         </div>
     );
 }
