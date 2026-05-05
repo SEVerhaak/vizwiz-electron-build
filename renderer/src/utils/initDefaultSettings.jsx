@@ -36,3 +36,8 @@ export const resetToDefaultSettings = () => {
     window.location.reload();
 
 };
+
+export const resetAll = () => {
+    localStorage.clear();
+    resetToDefaultSettings();
+}

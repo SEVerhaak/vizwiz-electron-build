@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MicrophoneSelector from "./MicrophoneSelector"; // 👈 add this
 import { Link } from "react-router-dom";
-import {resetToDefaultSettings} from "../../utils/initDefaultSettings.jsx";
+import {resetAll, resetToDefaultSettings} from "../../utils/initDefaultSettings.jsx";
 
 const PACKS = ["Default", "Extra", "Extra2", "NonMinimal", "MD1"];
 const PACKS_KEY = "vizwiz_packs";
@@ -116,6 +116,10 @@ export default function Settings() {
 
             <button onClick={resetToDefaultSettings}>
                 Reset to Defaults
+            </button>
+
+            <button onClick={resetAll}>
+                Reset everything!
             </button>
 
             <Link
