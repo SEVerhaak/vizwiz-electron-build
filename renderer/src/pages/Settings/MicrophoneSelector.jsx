@@ -98,8 +98,8 @@ export default function MicrophoneSelector() {
     };
 
     return (
-        <div style={{ marginTop: "20px" }}>
-            <h3>Microphone</h3>
+        <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <h2>Microphone</h2>
 
             <select value={selectedDevice} onChange={handleChange}>
                 {devices.map((d, i) => (
@@ -109,6 +109,7 @@ export default function MicrophoneSelector() {
                 ))}
             </select>
 
+            <h4>Microphone volume</h4>
             {/* Volume meter */}
             <div style={{ marginTop: "10px" }}>
                 <div
