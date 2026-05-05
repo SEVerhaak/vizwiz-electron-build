@@ -1,9 +1,46 @@
 import {Link} from "react-router-dom";
+import { useEffect, useState } from "react";
 import {VscSettings} from "react-icons/vsc";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 
 export default function PlaylistPage() {
+    const [playlists, setPlaylists] = useState([]);
+    const [selected, setSelected] = useState("");
+
+    useEffect(() => {
+        const list = JSON.parse(localStorage.getItem("playlist_list")) || [];
+        setPlaylists(list);
+
+        if (list.length > 0) {
+            setSelected(list[0]); // default selection
+        }
+    }, []);
+
+    const handleSelect = (name) => {
+        setSelected(name);
+
+        const playlistKey = `playlist_${name}`;
+        const saved = localStorage.getItem(playlistKey);
+
+        if (!saved) return;
+
+        try {
+            const parsed = JSON.parse(saved);
+
+            const draft = {
+                name: parsed.name,
+                creationTime: parsed.creationTime,
+                presets: parsed.presets || [],
+                settings: parsed.settings || {},
+            };
+
+            localStorage.setItem("playlist_draft", JSON.stringify(draft));
+        } catch (e) {
+            console.error("Failed to load playlist", e);
+        }
+    };
+
     return (
         <div style={pageStyle}>
 
@@ -14,10 +51,20 @@ export default function PlaylistPage() {
             <h3 style={sectionTitleStyle}>Current Player Settings</h3>
 
             {/* Dropdown */}
-            <select style={dropdownStyle}>
-                <option>My Playlist #5</option>
-                <option>My Playlist #1</option>
-                <option>My Playlist #2</option>
+            <select
+                style={dropdownStyle}
+                value={selected}
+                onChange={(e) => handleSelect(e.target.value)}
+            >
+                {playlists.length === 0 ? (
+                    <option>No playlists found</option>
+                ) : (
+                    playlists.map((name) => (
+                        <option key={name} value={name}>
+                            {name}
+                        </option>
+                    ))
+                )}
             </select>
             {/* Information Box */}
             <div style={infoBoxStyle}>
@@ -31,7 +78,11 @@ export default function PlaylistPage() {
             {/* Buttons Row 1 */}
             <div style={buttonRowStyle}>
                 <button style={primaryButtonStyle}>Start Visualizer</button>
-                <button style={secondaryButtonStyle}>Edit Playlist</button>
+                {selected && playlists.length > 0 && (
+                    <button style={secondaryButtonStyle}>
+                        Edit Playlist
+                    </button>
+                )}
                 <Link to="/playlists/create" style={secondaryButtonStyle}>
                     <FaPlus size={20} />
                     Create Playlist

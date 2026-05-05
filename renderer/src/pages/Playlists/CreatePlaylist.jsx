@@ -1,8 +1,17 @@
 import { useState } from "react";
 import Overview from "../Overview/Overview.jsx";
 import SelectedVizItem from "./SelectedVizItem.jsx";
+import {Link} from "react-router-dom";
+import {VscSettings} from "react-icons/vsc";
+import { GrFormNextLink } from "react-icons/gr";
+import { useNavigate } from "react-router-dom";
+import ErrorOverlay from "../../utils/Overlays/genericErrorOverlay.jsx"; // adjust path
 
 export default function CreatePlaylist() {
+
+    const navigate = useNavigate();
+    const [errorState, setErrorState] = useState(null);
+
     const [selectedViz, setSelectedViz] = useState([]);
 
     const [playlistName, setPlaylistName] = useState("My Playlist");
@@ -86,10 +95,25 @@ export default function CreatePlaylist() {
     };
 
     const nextButtonStyle = {
-        marginTop: "10px",
-        width: "100%",
-        padding: "10px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px",
+
+        padding: "12px 20px",
+        borderRadius: "8px",
+
+        backgroundColor: "rgba(255, 255, 255, 0.08)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+
+        color: "white",
+        textDecoration: "none",
+
+        fontSize: "18px",
+
         cursor: "pointer",
+        transition: "0.2s ease",
     };
 
     useState(() => {
@@ -139,12 +163,53 @@ export default function CreatePlaylist() {
                             ))
                         )}
                     </div>
+                    <div
+                        style={{
+                            display: "flex",
+                            gap: "10px",
+                            marginTop: "10px",
+                        }}
+                    >
+                        {/* Back button (Link) */}
+                        <Link
+                            to="/playlists"
+                            style={{
+                                ...nextButtonStyle,
+                                backgroundColor: "rgba(255,255,255,0.05)",
+                            }}
+                        >
+                            ← Back
+                        </Link>
 
-                    <button style={nextButtonStyle}>
-                        Next step
-                    </button>
+                        {/* Next button (controlled) */}
+                        <button
+                            style={nextButtonStyle}
+                            onClick={() => {
+                                if (selectedViz.length === 0) {
+                                    setErrorState({
+                                        message:
+                                            "You need to select at least one visualizer before continuing.",
+                                        severity: "warning",
+                                    });
+                                    return;
+                                }
+
+                                navigate("/playlists/settings");
+                            }}
+                        >
+                            <GrFormNextLink size={20} />
+                            Next step
+                        </button>
+                    </div>
                 </div>
             </div>
+            {errorState && (
+                <ErrorOverlay
+                    message={errorState.message}
+                    severity={errorState.severity}
+                    onClose={() => setErrorState(null)}
+                />
+            )}
         </div>
     );
 }
