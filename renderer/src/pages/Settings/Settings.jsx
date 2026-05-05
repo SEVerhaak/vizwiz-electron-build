@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import MicrophoneSelector from "./MicrophoneSelector"; // 👈 add this
 
 const PACKS = ["Default", "Extra", "Extra2", "NonMinimal", "MD1"];
 const PACKS_KEY = "vizwiz_packs";
@@ -106,6 +107,9 @@ export default function Settings() {
                         />
                     </label>
                 </div>
+
+                {/* 👇 NEW COMPONENT HERE */}
+                <MicrophoneSelector />
             </div>
 
             <button
