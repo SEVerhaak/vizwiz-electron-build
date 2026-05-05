@@ -18,7 +18,7 @@ const allPacks = {
     MD1: presetsMD1.getPresets(),
 };
 
-export default function Overview() {
+export default function Overview({ onVizClick }) {
     const location = useLocation();
 
     const presetsPerPage = 6;
@@ -227,7 +227,7 @@ export default function Overview() {
                                 width={canvasWidth}
                                 height={canvasHeight}
                                 className="overview-canvas"
-                                onClick={() => console.log(key)}
+                                onClick={() => onVizClick?.(key)}
                             />
                         </div>
                     ))}

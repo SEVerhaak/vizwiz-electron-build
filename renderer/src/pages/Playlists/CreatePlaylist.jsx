@@ -1,10 +1,56 @@
+import { useState } from "react";
 import Overview from "../Overview/Overview.jsx";
+import SelectedVizItem from "./SelectedVizItem.jsx";
 
 export default function CreatePlaylist() {
-    // Layout
-    const pageStyle = {
-        padding: "20px",
+    const [selectedViz, setSelectedViz] = useState([]);
+
+    const [playlistName, setPlaylistName] = useState("My Playlist");
+
+    const saveToLocalStorage = (presets) => {
+        const playlist = {
+            name: playlistName,
+            creationTime: new Date().toISOString(),
+            presets: presets,
+            settings: {},
+        };
+
+        localStorage.setItem("playlist_draft", JSON.stringify(playlist));
     };
+
+    const removeViz = (key) => {
+        setSelectedViz((prev) => {
+            const updated = prev.filter((item) => item !== key);
+
+            const playlist = {
+                name: playlistName,
+                creationTime: new Date().toISOString(),
+                presets: updated,
+                settings: {},
+            };
+
+            localStorage.setItem("playlist_draft", JSON.stringify(playlist));
+
+            return updated;
+        });
+    };
+
+    const handleVizClick = (key) => {
+        setSelectedViz((prev) => {
+            if (prev.includes(key)) return prev;
+
+            const updated = [...prev, key];
+
+            saveToLocalStorage(updated);
+
+            return updated;
+        });
+    };
+
+
+
+    // Layout
+    const pageStyle = { padding: "20px" };
 
     const columnsWrapperStyle = {
         display: "flex",
@@ -14,10 +60,7 @@ export default function CreatePlaylist() {
         marginTop: "20px",
     };
 
-    // LEFT COLUMN
-    const leftColumnStyle = {
-        width: "60%",
-    };
+    const leftColumnStyle = { width: "60%" };
 
     const leftHeaderStyle = {
         display: "flex",
@@ -26,24 +69,20 @@ export default function CreatePlaylist() {
         marginBottom: "10px",
     };
 
-    const overviewContainerStyle = {
-        height: "600px",
-    };
+    const overviewContainerStyle = { height: "600px" };
 
     const filterButtonStyle = {
         padding: "6px 12px",
         cursor: "pointer",
     };
 
-    // RIGHT COLUMN
-    const rightColumnStyle = {
-        width: "30%",
-    };
+    const rightColumnStyle = { width: "30%" };
 
     const rightBoxStyle = {
         border: "1px solid #ccc",
         height: "600px",
         padding: "10px",
+        overflowY: "auto",
     };
 
     const nextButtonStyle = {
@@ -53,32 +92,52 @@ export default function CreatePlaylist() {
         cursor: "pointer",
     };
 
+    useState(() => {
+        const saved = localStorage.getItem("playlist_draft");
+
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed?.presets) {
+                setSelectedViz(parsed.presets);
+                setPlaylistName(parsed.name || "My Playlist");
+            }
+        }
+    }, []);
+
     return (
         <div style={pageStyle}>
             <h1>CREATE NEW PLAYLIST</h1>
 
             <div style={columnsWrapperStyle}>
-                {/* LEFT COLUMN */}
+                {/* LEFT */}
                 <div style={leftColumnStyle}>
                     <div style={leftHeaderStyle}>
                         <h2 style={{ margin: 0 }}>Overview</h2>
 
-                        <button style={filterButtonStyle}>
-                            Filter
-                        </button>
+                        <button style={filterButtonStyle}>Filter</button>
                     </div>
 
                     <div style={overviewContainerStyle}>
-                        <Overview />
+                        <Overview onVizClick={handleVizClick} />
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN */}
+                {/* RIGHT */}
                 <div style={rightColumnStyle}>
-                    <h2>Details</h2>
+                    <h2>Selected Visualizers</h2>
 
                     <div style={rightBoxStyle}>
-                        Right column content goes here
+                        {selectedViz.length === 0 ? (
+                            <p>No visualizers selected yet</p>
+                        ) : (
+                            selectedViz.map((item) => (
+                                <SelectedVizItem
+                                    key={item}
+                                    name={item}
+                                    onRemove={removeViz}
+                                />
+                            ))
+                        )}
                     </div>
 
                     <button style={nextButtonStyle}>
