@@ -12,8 +12,31 @@ export default function PlaylistPage() {
         const list = JSON.parse(localStorage.getItem("playlist_list")) || [];
         setPlaylists(list);
 
-        if (list.length > 0) {
-            setSelected(list[0]); // default selection
+        if (list.length === 1) {
+            const onlyPlaylist = list[0];
+            setSelected(onlyPlaylist);
+
+            const playlistKey = `playlist_${onlyPlaylist}`;
+            const saved = localStorage.getItem(playlistKey);
+
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+
+                    const draft = {
+                        name: parsed.name,
+                        creationTime: parsed.creationTime,
+                        presets: parsed.presets || [],
+                        settings: parsed.settings || {},
+                    };
+
+                    localStorage.setItem("playlist_edit", JSON.stringify(draft));
+                } catch (e) {
+                    console.error("Failed to load single playlist", e);
+                }
+            }
+        } else if (list.length > 1) {
+            setSelected(list[0]); // default selection (no auto-draft overwrite)
         }
     }, []);
 
@@ -35,7 +58,7 @@ export default function PlaylistPage() {
                 settings: parsed.settings || {},
             };
 
-            localStorage.setItem("playlist_draft", JSON.stringify(draft));
+            localStorage.setItem("playlist_edit", JSON.stringify(draft));
         } catch (e) {
             console.error("Failed to load playlist", e);
         }

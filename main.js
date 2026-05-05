@@ -1,6 +1,10 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 
+app.commandLine.appendSwitch(
+    'disable-features',
+    'WebRtcAllowInputVolumeAdjustment'
+);
 function createWindow() {
     const win = new BrowserWindow({
         width: 1200,
