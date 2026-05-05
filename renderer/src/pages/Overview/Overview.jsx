@@ -171,14 +171,6 @@ export default function Overview() {
 
     return (
         <div className="overview-container">
-            <div className="button-container">
-                <button className="overview-back-button" onClick={() => navigate("/")}>
-                    ← Back
-                </button>
-            </div>
-
-            <h1 className="overview-title">Preset Overview</h1>
-
             <div className="overview-grid-wrapper">
                 {loading && (
                     <div className="overview-loading-overlay">Loading presets...</div>

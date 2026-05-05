@@ -22,7 +22,7 @@ export default function Home() {
                                 <div style={linkStyle}>Start the visualizer</div>
                             </div>
                         </Link>
-                        <Link to="/overview" style={{ textDecoration: "none", color: "inherit" }}>
+                        <Link to="/playlists" style={{ textDecoration: "none", color: "inherit" }}>
                             <div className="mainMenuButton" style={mainMenuButtonStyle}>
                                 <TbPlaylistAdd size={96} />
                                 <div style={linkStyle}>Load a playlist</div>
@@ -35,7 +35,8 @@ export default function Home() {
                         <Link to="/settings" style={settingsButtonStyle}>
                             <VscSettings size={20} />
                             Settings
-                        </Link>                    </nav>
+                        </Link>
+                    </nav>
                 </div>
             </div>
     );

@@ -5,6 +5,8 @@ import Editor from "./pages/Editor/Editor.jsx";
 import Overview from "./pages/Overview/Overview.jsx";
 import Settings from "./pages/Settings/Settings.jsx";
 import LiquidGlassPage from "./pages/Test-pages/liquidGlass.jsx";
+import PlaylistPage from "./pages/Playlists/Overview.jsx";
+import CreatePlaylist from "./pages/Playlists/CreatePlaylist.jsx";
 
 export default function App() {
     return (
@@ -16,6 +18,8 @@ export default function App() {
                 <Route path="/overview" element={<Overview />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/liquidGlass" element={<LiquidGlassPage />} />
+                <Route path="/playlists" element={<PlaylistPage />} />
+                <Route path="/playlists/create" element={<CreatePlaylist />} />
             </Routes>
         </Router>
     );
