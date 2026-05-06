@@ -3,8 +3,12 @@ import { useEffect, useState } from "react";
 import {VscSettings} from "react-icons/vsc";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function PlaylistPage() {
+    const navigate = useNavigate();
+
     const [playlists, setPlaylists] = useState([]);
     const [selected, setSelected] = useState("");
 
@@ -12,6 +16,22 @@ export default function PlaylistPage() {
         const list = JSON.parse(localStorage.getItem("playlist_list")) || [];
         setPlaylists(list);
 
+        const editRaw = localStorage.getItem("playlist_edit");
+
+        if (editRaw) {
+            try {
+                const editParsed = JSON.parse(editRaw);
+
+                if (editParsed.name && list.includes(editParsed.name)) {
+                    setSelected(editParsed.name);
+                    return; // stop here, we found the correct one
+                }
+            } catch (e) {
+                console.error("Failed to parse playlist_edit", e);
+            }
+        }
+
+        // fallback logic if no valid playlist_edit
         if (list.length === 1) {
             const onlyPlaylist = list[0];
             setSelected(onlyPlaylist);
@@ -36,10 +56,9 @@ export default function PlaylistPage() {
                 }
             }
         } else if (list.length > 1) {
-            setSelected(list[0]); // default selection (no auto-draft overwrite)
+            setSelected(list[0]);
         }
     }, []);
-
     const handleSelect = (name) => {
         setSelected(name);
 
@@ -100,11 +119,47 @@ export default function PlaylistPage() {
 
             {/* Buttons Row 1 */}
             <div style={buttonRowStyle}>
-                <button style={primaryButtonStyle}>Start Visualizer</button>
+                <button
+                    style={primaryButtonStyle}
+                    onClick={() => {
+                        const editRaw = localStorage.getItem("playlist_edit");
+
+                        if (!editRaw) return;
+
+                        try {
+                            const parsed = JSON.parse(editRaw);
+
+                            if (!parsed?.presets || parsed.presets.length === 0) {
+                                console.warn("No presets in playlist_edit");
+                                return;
+                            }
+
+                            // save runtime playlist
+                            localStorage.setItem(
+                                "playlists_current",
+                                JSON.stringify({
+                                    name: parsed.name,
+                                    presets: parsed.presets,
+                                    settings: parsed.settings || {},
+                                    creationTime: parsed.creationTime,
+                                })
+                            );
+
+                            // go to visualizer (no presetKey)
+                            navigate("/visualizer");
+                        } catch (e) {
+                            console.error("Failed to start visualizer", e);
+                        }
+                    }}
+                >
+                    Start Visualizer
+                </button>
                 {selected && playlists.length > 0 && (
-                    <button style={secondaryButtonStyle}>
+                    <Link to="/playlists/edit" style={secondaryButtonStyle}>
+                        <FaEdit size={20} />
                         Edit Playlist
-                    </button>
+                    </Link>
+
                 )}
                 <Link to="/playlists/create" style={secondaryButtonStyle}>
                     <FaPlus size={20} />

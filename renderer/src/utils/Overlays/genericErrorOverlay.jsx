@@ -3,10 +3,10 @@ import { IoWarning } from "react-icons/io5";
 import { MdOutlineError } from "react-icons/md";
 
 export default function ErrorOverlay({
-                                         message = "",
-                                         severity = "info", // "info" | "warning" | "error"
-                                         onClose,
-                                     }) {
+         message = "",
+         severity = "info", // "info" | "warning" | "error"
+         onClose,
+     }) {
     const config = {
         info: {
             color: "#1976d2",

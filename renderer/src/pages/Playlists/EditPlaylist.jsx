@@ -8,15 +8,27 @@ import { useNavigate } from "react-router-dom";
 import ErrorOverlay from "../../utils/Overlays/genericErrorOverlay.jsx";
 import {setPlaylistMode} from "../../utils/playlistModeSwitcher.jsx"; // adjust path
 
-export default function CreatePlaylist() {
-    setPlaylistMode("creating");
+export default function EditPlaylist() {
+    setPlaylistMode("editing");
 
     const navigate = useNavigate();
     const [errorState, setErrorState] = useState(null);
 
     const [selectedViz, setSelectedViz] = useState([]);
 
-    const [playlistName, setPlaylistName] = useState("My Playlist");
+    const [playlistName, setPlaylistName] = useState(() => {
+        try {
+            const stored = localStorage.getItem("playlist_edit");
+            if (!stored) return "My Playlist";
+
+            const parsed = JSON.parse(stored);
+            return parsed.name || "My Playlist";
+        } catch (e) {
+            return "My Playlist";
+        }
+    });
+
+
 
     const saveToLocalStorage = (presets) => {
         const playlist = {
@@ -26,7 +38,7 @@ export default function CreatePlaylist() {
             settings: {},
         };
 
-        localStorage.setItem("playlist_draft", JSON.stringify(playlist));
+        localStorage.setItem("playlist_edit", JSON.stringify(playlist));
     };
 
     const removeViz = (key) => {
@@ -40,7 +52,7 @@ export default function CreatePlaylist() {
                 settings: {},
             };
 
-            localStorage.setItem("playlist_draft", JSON.stringify(playlist));
+            localStorage.setItem("playlist_edit", JSON.stringify(playlist));
 
             return updated;
         });
@@ -119,7 +131,7 @@ export default function CreatePlaylist() {
     };
 
     useState(() => {
-        const saved = localStorage.getItem("playlist_draft");
+        const saved = localStorage.getItem("playlist_edit");
 
         if (saved) {
             const parsed = JSON.parse(saved);
@@ -132,7 +144,8 @@ export default function CreatePlaylist() {
 
     return (
         <div style={pageStyle}>
-            <h1>CREATE NEW PLAYLIST</h1>
+            <h1>EDIT PLAYLIST</h1>
+            <h1>Playlist name: {playlistName}</h1>
 
             <div style={columnsWrapperStyle}>
                 {/* LEFT */}

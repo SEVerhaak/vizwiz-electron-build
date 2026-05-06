@@ -16,7 +16,14 @@ export default function Home() {
                 </div>
                 <div className={"mainButtonContainer"} style={mainButtonContainerStyle}>
                     <nav style={{ display: "flex", flexDirection: "row", gap: "20px" }}>
-                        <Link to="/visualizer" style={{ textDecoration: "none", color: "inherit" }}>
+                        <Link
+                            to="/visualizer"
+                            style={{ textDecoration: "none", color: "inherit" }}
+                            onClick={() => {
+                                // discard any active playlist session
+                                localStorage.removeItem("playlists_current");
+                            }}
+                        >
                             <div className="mainMenuButton" style={mainMenuButtonStyle}>
                                 <IoPlayCircle size={96} />
                                 <div style={linkStyle}>Start the visualizer</div>

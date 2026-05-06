@@ -30,6 +30,10 @@ export default function Visualizer() {
     const [dropdownVisible, setDropdownVisible] = useState(false);
 
     useEffect(() => {
+        const currentPlaylist = JSON.parse(
+            localStorage.getItem("playlists_current")
+        );
+
         const canvas = canvasRef.current;
         const presetSelect = selectRef.current;
 
@@ -39,10 +43,13 @@ export default function Visualizer() {
             mesh_width: 64,
             mesh_height: 48,
             pixelRatio: window.devicePixelRatio || 1,
-            textureRatio: 1
+            textureRatio: 1,
         });
 
-        // Load all packs
+        // =========================
+        // PRESET SOURCE SETUP
+        // =========================
+
         const allPacks = {
             Default: butterchurnPresets.getPresets(),
             Extra: extraPresets.getPresets(),
@@ -51,64 +58,84 @@ export default function Visualizer() {
             MD1: presetsMD1.getPresets(),
         };
 
-        // Get selected packs from settings
-        const selectedPackNames = JSON.parse(localStorage.getItem("vizwiz_packs")) || ["Default"];
+        let mergedPresets = {};
+        let presetKeys = [];
 
-        console.log("🎛️ Selected preset packs:", selectedPackNames);
+        // 🎯 PRIORITY: runtime playlist
+        if (currentPlaylist?.presets?.length > 0) {
+            console.log("🎵 Using playlists_current");
 
-        // Filter packs
-        const activePacks = Object.entries(allPacks).filter(([name]) =>
-            selectedPackNames.includes(name)
-        );
+            const packData = Object.values(allPacks).reduce(
+                (acc, pack) => ({ ...acc, ...pack }),
+                {}
+            );
 
-        // Merge + dedupe
-        const mergedPresets = {};
-        activePacks.forEach(([packName, presets]) => {
-            Object.entries(presets).forEach(([key, value]) => {
-                if (!mergedPresets[key]) {
-                    mergedPresets[key] = value;
+            presetKeys = currentPlaylist.presets;
+
+            presetKeys.forEach((key) => {
+                if (packData[key]) {
+                    mergedPresets[key] = packData[key];
                 }
             });
-        });
+        } else {
+            console.log("🎛️ Using default packs");
 
-        let presetKeys = Object.keys(mergedPresets);
+            const selectedPackNames =
+                JSON.parse(localStorage.getItem("vizwiz_packs")) || ["Default"];
+
+            const activePacks = Object.entries(allPacks).filter(([name]) =>
+                selectedPackNames.includes(name)
+            );
+
+            activePacks.forEach(([_, presets]) => {
+                Object.entries(presets).forEach(([key, value]) => {
+                    if (!mergedPresets[key]) mergedPresets[key] = value;
+                });
+            });
+
+            presetKeys = Object.keys(mergedPresets);
+        }
 
         if (presetKeys.length === 0) {
-            console.warn("No preset packs selected, falling back to Default");
-            Object.assign(mergedPresets, allPacks.Default);
+            console.warn("No presets found, falling back to Default");
+            mergedPresets = allPacks.Default;
             presetKeys = Object.keys(mergedPresets);
         }
 
         console.log("✅ Active preset count:", presetKeys.length);
 
+        // =========================
+        // PRESET INDEX SETUP
+        // =========================
+
         let presetIndex = presetKey
             ? presetKeys.indexOf(presetKey)
             : Math.floor(Math.random() * presetKeys.length);
 
-        if (presetIndex === -1) presetIndex = Math.floor(Math.random() * presetKeys.length);
+        if (presetIndex === -1) {
+            presetIndex = Math.floor(Math.random() * presetKeys.length);
+        }
 
         let presetIndexHist = [];
         let cycleInterval = null;
 
-        // Then use them in your existing code
-        if (presetCycle) {
-            cycleInterval = setInterval(() => nextPreset(2.7), presetCycleLength);
-        } else {
-            cycleInterval = null; // don't auto-cycle
-        }
+        // =========================
+        // FUNCTIONS
+        // =========================
 
-        // Populate dropdown
-        presetKeys.forEach((key, index) => {
-            const option = document.createElement("option");
-            option.value = index;
-            option.textContent = key;
-            presetSelect.appendChild(option);
-        });
-
-        // Load the initial preset
         function loadPreset(index, blend = 5.7) {
             visualizer.loadPreset(mergedPresets[presetKeys[index]], blend);
             presetSelect.value = index;
+        }
+
+        function restartCycleInterval() {
+            if (cycleInterval) clearInterval(cycleInterval);
+            if (presetCycle) {
+                cycleInterval = setInterval(
+                    () => nextPreset(2.7),
+                    presetCycleLength
+                );
+            }
         }
 
         function nextPreset(blendTime = 5.7) {
@@ -129,17 +156,28 @@ export default function Visualizer() {
             restartCycleInterval();
         }
 
-        function restartCycleInterval() {
-            if (cycleInterval) clearInterval(cycleInterval);
-            if (presetCycle) {
-                cycleInterval = setInterval(
-                    () => nextPreset(2.7),
-                    presetCycleLength
-                );
-            }
-        }
+        // =========================
+        // DROPDOWN
+        // =========================
 
-        // Resize
+        presetKeys.forEach((key, index) => {
+            const option = document.createElement("option");
+            option.value = index;
+            option.textContent = key;
+            presetSelect.appendChild(option);
+        });
+
+        presetSelect.addEventListener("change", (e) => {
+            const index = parseInt(e.target.value, 10);
+            presetIndex = index;
+            loadPreset(presetIndex);
+            restartCycleInterval();
+        });
+
+        // =========================
+        // RESIZE
+        // =========================
+
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -149,15 +187,10 @@ export default function Visualizer() {
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
 
-        // Dropdown change
-        presetSelect.addEventListener("change", (e) => {
-            const index = parseInt(e.target.value, 10);
-            presetIndex = index;
-            loadPreset(presetIndex);
-            restartCycleInterval();
-        });
+        // =========================
+        // KEYBOARD
+        // =========================
 
-        // Keyboard controls
         function handleKey(e) {
             switch (e.key) {
                 case " ":
@@ -176,22 +209,33 @@ export default function Visualizer() {
                 case "B":
                     setDropdownVisible((v) => !v);
                     break;
-                case "Escape":   // ← Added this
-                    navigate("/");  // Go back to homepage
+                case "Escape":
+                    navigate("/");
                     break;
             }
         }
+
         document.addEventListener("keydown", handleKey);
 
-        // Audio
-        navigator.mediaDevices
-            .getUserMedia({audio: true})
-            .then((stream) => {
-                const audioContext = new AudioContext();
-                const source = audioContext.createMediaStreamSource(stream);
-                const analyser = audioContext.createAnalyser();
+        // =========================
+        // AUDIO
+        // =========================
 
+        let audioContext;
+        let stream;
+        let analyser;
+
+        navigator.mediaDevices
+            .getUserMedia({ audio: true })
+            .then((s) => {
+                stream = s;
+
+                audioContext = new AudioContext();
+                const source = audioContext.createMediaStreamSource(stream);
+
+                analyser = audioContext.createAnalyser();
                 analyser.fftSize = 1024;
+
                 source.connect(analyser);
 
                 function render() {
@@ -204,8 +248,8 @@ export default function Visualizer() {
                             audioLevels: {
                                 timeByteArray: Array.from(dataArray),
                                 timeByteArrayL: Array.from(dataArray),
-                                timeByteArrayR: Array.from(dataArray)
-                            }
+                                timeByteArrayR: Array.from(dataArray),
+                            },
                         });
                     } catch (err) {
                         console.warn("Render error:", err);
@@ -220,15 +264,30 @@ export default function Visualizer() {
                 console.error("Mic failed:", err);
             });
 
-        // nextPreset(0);
-        loadPreset(presetIndex, 0); // URL preset or random fallback
+        // =========================
+        // INIT FIRST PRESET
+        // =========================
+
+        loadPreset(presetIndex, 0);
         restartCycleInterval();
 
-        // Cleanup (important in React)
+        // =========================
+        // CLEANUP
+        // =========================
+
         return () => {
             window.removeEventListener("resize", resizeCanvas);
             document.removeEventListener("keydown", handleKey);
+
             if (cycleInterval) clearInterval(cycleInterval);
+
+            try {
+                stream?.getTracks().forEach((t) => t.stop());
+            } catch {}
+
+            try {
+                audioContext?.close();
+            } catch {}
         };
     }, [presetKey]);
 

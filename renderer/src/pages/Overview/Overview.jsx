@@ -103,9 +103,83 @@ export default function Overview({ onVizClick }) {
         vizRefs.current = [];
     };
 
-    useEffect(() => {
-        return cleanupVisualizers;
-    }, []);
+    const cleanupAll = ({
+                            loopsRef,
+                            vizRefs,
+                            canvasRefs,
+                            stream,
+                            analyser,
+                            audioContext,
+                            analyserRef,
+                        }) => {
+        // 1. Stop all render loops
+        if (loopsRef?.current) {
+            loopsRef.current.forEach((id) => {
+                try {
+                    cancelAnimationFrame(id);
+                } catch {}
+            });
+            loopsRef.current = [];
+        }
+
+        // 2. Destroy visualizers + WebGL contexts
+        if (vizRefs?.current) {
+            vizRefs.current.forEach((viz) => {
+                try {
+                    if (!viz) return;
+
+                    // Force WebGL context loss (GPU cleanup)
+                    if (viz.gl) {
+                        const ext = viz.gl.getExtension("WEBGL_lose_context");
+                        ext?.loseContext();
+                    }
+
+                    // Break references (helps GC)
+                    viz.audio = null;
+                    viz.gl = null;
+                } catch (e) {
+                    console.warn("Viz cleanup error:", e);
+                }
+            });
+
+            vizRefs.current = [];
+        }
+
+        // 3. Reset canvases (extra safety)
+        if (canvasRefs?.current) {
+            Object.values(canvasRefs.current).forEach((canvas) => {
+                try {
+                    if (canvas) {
+                        canvas.width = canvas.width; // resets WebGL context
+                    }
+                } catch {}
+            });
+        }
+
+        // 4. Stop microphone stream
+        try {
+            stream?.getTracks().forEach((track) => track.stop());
+        } catch {}
+
+        // 5. Disconnect analyser
+        try {
+            analyser?.disconnect();
+        } catch {}
+
+        // 6. Close audio context
+        try {
+            audioContext?.close();
+        } catch {}
+
+        // 7. Clear analyser ref
+        if (analyserRef) {
+            analyserRef.current = null;
+        }
+    };
+
+    // useEffect(() => {
+    //     return cleanupVisualizers;
+    // }, []);
 
     useEffect(() => {
         const id = ++setupId.current;
@@ -194,10 +268,16 @@ export default function Overview({ onVizClick }) {
         return () => {
             setupId.current++;
 
-            cleanupVisualizers();
-
-            stream?.getTracks().forEach((t) => t.stop());
-            audioContext?.close?.();
+            cleanupAll({
+                loopsRef:
+                loops,
+                vizRefs,
+                canvasRefs,
+                stream,
+                analyser,
+                audioContext,
+                analyserRef,
+            });
         };
     }, [currentKeys, mergedPresets]);
 
