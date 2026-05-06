@@ -12,6 +12,18 @@ export default function PlaylistPage() {
     const [playlists, setPlaylists] = useState([]);
     const [selected, setSelected] = useState("");
 
+    const presetAmount = (() => {
+        try {
+            const raw = localStorage.getItem("playlist_edit");
+            if (!raw) return 0;
+
+            const parsed = JSON.parse(raw);
+            return parsed?.presets?.length || 0;
+        } catch (e) {
+            return 0;
+        }
+    })();
+
     useEffect(() => {
         const list = JSON.parse(localStorage.getItem("playlist_list")) || [];
         setPlaylists(list);
@@ -110,7 +122,7 @@ export default function PlaylistPage() {
             </select>
             {/* Information Box */}
             <div style={infoBoxStyle}>
-                <p>PRESET AMOUNT:</p>
+                <p>PRESET AMOUNT: {presetAmount}</p>
                 <p>RANDOMIZE ORDER:</p>
                 <p>CYCLE BETWEEN PRESETS:</p>
                 <p>INPUT:</p>

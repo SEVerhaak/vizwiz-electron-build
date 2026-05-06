@@ -14,12 +14,29 @@ export default function MicrophoneSelector() {
     const lastUpdateRef = useRef(0);
 
     // -----------------------------
+    // Safe AudioContext close helper
+    // -----------------------------
+    const safeCloseAudioContext = async () => {
+        const ctx = audioContextRef.current;
+
+        if (!ctx) return;
+        if (ctx.state === "closed") return;
+
+        try {
+            await ctx.close();
+        } catch (err) {
+            console.warn("AudioContext close skipped:", err.message);
+        } finally {
+            audioContextRef.current = null;
+        }
+    };
+
+    // -----------------------------
     // Load microphone devices
     // -----------------------------
     useEffect(() => {
         async function loadDevices() {
             try {
-                // Request permission once (needed for labels)
                 const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 tempStream.getTracks().forEach(t => t.stop());
 
@@ -29,8 +46,17 @@ export default function MicrophoneSelector() {
                 setDevices(inputs);
 
                 if (inputs.length > 0) {
-                    setSelectedDevice(inputs[0].deviceId);
+                    const savedMic = localStorage.getItem("settings_mic");
+
+                    const initialDevice =
+                        inputs.find(d => d.deviceId === savedMic)?.deviceId ||
+                        inputs[0].deviceId;
+
+                    setSelectedDevice(initialDevice);
+
+                    console.log("Loaded microphone from localStorage:", initialDevice);
                 }
+
             } catch (err) {
                 console.error("Mic permission error:", err);
             }
@@ -49,14 +75,14 @@ export default function MicrophoneSelector() {
 
         async function startAudio() {
             try {
-                // Stop previous stream + audio context
+                // Stop previous stream
                 if (streamRef.current) {
                     streamRef.current.getTracks().forEach(t => t.stop());
+                    streamRef.current = null;
                 }
 
-                if (audioContextRef.current) {
-                    await audioContextRef.current.close();
-                }
+                // Safely close previous AudioContext
+                await safeCloseAudioContext();
 
                 const stream = await navigator.mediaDevices.getUserMedia({
                     audio: { deviceId: { exact: selectedDevice } }
@@ -94,10 +120,7 @@ export default function MicrophoneSelector() {
 
                     const avg = sum / dataArray.length;
 
-                    // -----------------------------
-                    // THROTTLE React updates (KEY FIX)
-                    // -----------------------------
-                    if (time - lastUpdateRef.current > 80) { // ~12 FPS
+                    if (time - lastUpdateRef.current > 80) {
                         setVolume(avg);
                         lastUpdateRef.current = time;
                     }
@@ -118,15 +141,15 @@ export default function MicrophoneSelector() {
 
             if (animationRef.current) {
                 cancelAnimationFrame(animationRef.current);
+                animationRef.current = null;
             }
 
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(t => t.stop());
+                streamRef.current = null;
             }
 
-            if (audioContextRef.current) {
-                audioContextRef.current.close();
-            }
+            safeCloseAudioContext();
         };
     }, [selectedDevice]);
 
@@ -134,7 +157,13 @@ export default function MicrophoneSelector() {
     // Device change handler
     // -----------------------------
     const handleChange = (e) => {
-        setSelectedDevice(e.target.value);
+        const newDevice = e.target.value;
+
+        setSelectedDevice(newDevice);
+
+        localStorage.setItem("settings_mic", newDevice);
+
+        console.log("Saved microphone to localStorage:", newDevice);
     };
 
     // -----------------------------

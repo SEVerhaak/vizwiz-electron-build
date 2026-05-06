@@ -225,8 +225,20 @@ export default function Visualizer() {
         let stream;
         let analyser;
 
+        const savedMic = localStorage.getItem("settings_mic");
+
+        const audioConstraints = savedMic
+            ? { audio: { deviceId: { exact: savedMic } } }
+            : { audio: true };
+
+        if (savedMic) {
+            console.log("🎧 Visualizer using saved microphone:", savedMic);
+        } else {
+            console.log("🎧 Visualizer using default microphone (no saved mic)");
+        }
+
         navigator.mediaDevices
-            .getUserMedia({ audio: true })
+            .getUserMedia(audioConstraints)
             .then((s) => {
                 stream = s;
 
