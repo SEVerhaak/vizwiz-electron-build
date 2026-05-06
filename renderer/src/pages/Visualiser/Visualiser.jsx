@@ -227,9 +227,11 @@ export default function Visualizer() {
 
         const savedMic = localStorage.getItem("settings_mic");
 
-        const audioConstraints = savedMic
-            ? { audio: { deviceId: { exact: savedMic } } }
-            : { audio: true };
+        const audioConstraints = {
+            audio: savedMic
+                ? { deviceId: { ideal: savedMic } }
+                : true
+        };
 
         if (savedMic) {
             console.log("🎧 Visualizer using saved microphone:", savedMic);

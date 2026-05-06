@@ -46,15 +46,29 @@ export default function MicrophoneSelector() {
                 setDevices(inputs);
 
                 if (inputs.length > 0) {
-                    const savedMic = localStorage.getItem("settings_mic");
+                    let savedMic = null;
+
+                    try {
+                        savedMic = JSON.parse(localStorage.getItem("settings_mic"));
+                    } catch (e) {
+                        console.warn("Failed to parse saved mic", e);
+                    }
 
                     const initialDevice =
-                        inputs.find(d => d.deviceId === savedMic)?.deviceId ||
+                        inputs.find(d => d.deviceId === savedMic?.id)?.deviceId ||
                         inputs[0].deviceId;
 
                     setSelectedDevice(initialDevice);
 
-                    console.log("Loaded microphone from localStorage:", initialDevice);
+                    const selectedDeviceObj =
+                        inputs.find(d => d.deviceId === initialDevice);
+
+                    console.log(
+                        "🎧 Loaded microphone:",
+                        selectedDeviceObj?.label || "Unknown",
+                        "| id:",
+                        initialDevice
+                    );
                 }
 
             } catch (err) {
@@ -157,13 +171,24 @@ export default function MicrophoneSelector() {
     // Device change handler
     // -----------------------------
     const handleChange = (e) => {
-        const newDevice = e.target.value;
+        const deviceId = e.target.value;
 
-        setSelectedDevice(newDevice);
+        const selectedDevice = devices.find(
+            (d) => d.deviceId === deviceId
+        );
 
-        localStorage.setItem("settings_mic", newDevice);
+        if (!selectedDevice) return;
 
-        console.log("Saved microphone to localStorage:", newDevice);
+        setSelectedDevice(deviceId);
+
+        const micData = {
+            id: selectedDevice.deviceId,
+            name: selectedDevice.label || "Unknown Microphone"
+        };
+
+        localStorage.setItem("settings_mic", JSON.stringify(micData));
+
+        console.log("🎤 Microphone saved:", micData);
     };
 
     // -----------------------------

@@ -24,6 +24,15 @@ export default function PlaylistPage() {
         }
     })();
 
+    const mic = (() => {
+        try {
+            const raw = localStorage.getItem("settings_mic");
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    })();
+
     useEffect(() => {
         const list = JSON.parse(localStorage.getItem("playlist_list")) || [];
         setPlaylists(list);
@@ -125,7 +134,7 @@ export default function PlaylistPage() {
                 <p>PRESET AMOUNT: {presetAmount}</p>
                 <p>RANDOMIZE ORDER:</p>
                 <p>CYCLE BETWEEN PRESETS:</p>
-                <p>INPUT:</p>
+                <p>INPUT: {mic?.name || "Default Microphone"}</p>
                 <p>INPUT LEVEL:</p>
             </div>
 

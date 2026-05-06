@@ -178,6 +178,11 @@ export default function PlaylistSettingsPage() {
                 onClick={() => {
                     const mode = localStorage.getItem("playlist_mode");
 
+                    if (mode === "creating"){
+                        // creating mode → keep popup flow
+                        setShowPopup(true);
+                    }
+
                     const draft = JSON.parse(
                         localStorage.getItem("playlist_edit") || "{}"
                     );
@@ -209,9 +214,6 @@ export default function PlaylistSettingsPage() {
 
                         return;
                     }
-
-                    // creating mode → keep popup flow
-                    setShowPopup(true);
                 }}
             >
                 Save Playlist
