@@ -19,6 +19,8 @@
     flex-direction: column;
 
     align-items: center;
+
+    background-color: #1a1a1a;
 }
 
 /* =========================
@@ -130,6 +132,28 @@
     transition: 0.2s ease;
 
     text-decoration: none;
+    line-height: 1;           /* 👈 important fix */
+}
+
+/* RED BACK BUTTON */
+.back-button {
+    background: #e53935;
+    color: white;
+}
+
+.back-button:hover {
+    background: #c62828;
+}
+
+/* GREEN SAVE BUTTON */
+.next-button {
+    background: #43a047;
+    color: white;
+    font-weight: bold;
+}
+
+.next-button:hover {
+    background: #2e7d32;
 }
 
 .playlist-button:hover {

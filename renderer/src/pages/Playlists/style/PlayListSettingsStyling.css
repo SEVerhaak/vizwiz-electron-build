@@ -4,6 +4,7 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
+    background-color: #1a1a1a;
 }
 
 /* MAIN LAYOUT */
@@ -13,6 +14,7 @@
     justify-content: space-around;
     height: 80vh;
     width: 100%;
+    align-items: center; /* 👈 this is the key */
 }
 
 /* LEFT SETTINGS PANEL */
@@ -20,7 +22,7 @@
     width: 60%;
     padding: 20px;
     overflow-y: auto;
-    border-right: 1px solid #ddd;
+    align-self: baseline;
 }
 
 .playlist-title {
@@ -49,6 +51,8 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    border: 1px solid #ccc;
+    border-radius: 8px;
 }
 
 /* EMPTY STATE */
@@ -56,30 +60,46 @@
     color: #777;
 }
 
-/* BACK BUTTON */
-.back-button {
+.button-row {
+    display: flex;
+    gap: 12px;
     margin-top: 20px;
-    display: block;
-    padding: 10px;
     width: 100%;
-    text-align: center;
-    background: #eee;
-    color: black;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
 }
 
-/* SAVE BUTTON */
+/* shared button base */
+.back-button,
 .save-button {
-    margin-top: 10px;
-    display: block;
+    font-family: "poppins-thin", sans-serif;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
     padding: 12px;
-    width: 100%;
-    text-align: center;
-    background: #1976d2;
-    color: white;
-    border-radius: 4px;
     border: none;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 18px;
+}
+
+/* RED BACK BUTTON */
+.back-button {
+    background: #e53935;
+    color: white;
+}
+
+.back-button:hover {
+    background: #c62828;
+}
+
+/* GREEN SAVE BUTTON */
+.save-button {
+    background: #43a047;
+    color: white;
+}
+
+.save-button:hover {
+    background: #2e7d32;
 }

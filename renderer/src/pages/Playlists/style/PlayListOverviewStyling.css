@@ -1,0 +1,176 @@
+/* PAGE WRAPPER */
+.playlist-overview-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 50px;
+    background-color: #1a1a1a;
+    color: white;
+    gap: 20px;
+    align-items: flex-start;
+
+    font-family: "poppins-thin", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* TITLE */
+.playlist-title {
+    font-family: "poppins-thin", sans-serif;
+    font-size: 42px;
+    margin: 0;
+}
+
+/* SECTION TITLE */
+.playlist-section-title {
+    font-family: "poppins-thin", sans-serif;
+    letter-spacing: 3px;
+    font-weight: 600;
+    margin-top: 80px;
+    margin-bottom: 0;
+}
+
+/* DROPDOWN */
+.playlist-dropdown {
+    font-family: "poppins-thin", sans-serif;
+    padding: 10px;
+    width: 50%;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+}
+
+/* INFO BOX */
+.playlist-info-box {
+    margin-top: 10px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    line-height: 1.8;
+    text-align: left;
+    width: 50%;
+}
+
+/* BUTTON ROW */
+.playlist-button-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* BOTTOM ROW */
+.playlist-bottom-row {
+    display: flex;
+    gap: 15px;
+    margin-top: auto;
+}
+
+/* PRIMARY BUTTON */
+.playlist-primary-button {
+    font-family: "poppins-thin", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+
+    background-color: rgb(0 255 6 / 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* SECONDARY BUTTON */
+.playlist-secondary-button {
+    font-family: "poppins-thin", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+
+    background-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+/* DELETE BUTTON */
+.playlist-delete-button {
+    font-family: "poppins-thin", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+
+    background-color: rgb(255 0 0 / 0.34);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* BACK BUTTON */
+.playlist-back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 12px 20px;
+    border-radius: 8px;
+
+    background-color: rgb(255 255 255 / 0.34);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    color: white;
+    font-size: 18px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* SETTINGS BUTTON */
+.playlist-settings-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 12px 20px;
+    border-radius: 8px;
+
+    background-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    color: white;
+    font-size: 18px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}

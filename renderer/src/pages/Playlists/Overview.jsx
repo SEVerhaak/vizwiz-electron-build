@@ -1,112 +1,70 @@
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {VscSettings} from "react-icons/vsc";
+import { VscSettings } from "react-icons/vsc";
 import { IoArrowBackOutline } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa";
-import { FaEdit } from "react-icons/fa";
-import { FaPlay } from "react-icons/fa6";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaPlus, FaPlay, FaEdit, FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import ChoiceOverlay from "../../utils/Overlays/genericChoiceOverlay.jsx";
+
+import "./style/PlayListOverviewStyling.css";
 
 export default function PlaylistPage() {
     const navigate = useNavigate();
 
-    // for the choice overlay upon trying to delete the playlist
     const [showOverlay, setShowOverlay] = useState(false);
+    const [playlists, setPlaylists] = useState([]);
+    const [selected, setSelected] = useState("");
 
     const handleResult = (accepted) => {
         setShowOverlay(false);
 
-        if (!accepted) {
-            console.log("User rejected");
-            return;
-        }
-
-        if (!selected) return;
+        if (!accepted || !selected) return;
 
         try {
-            // get current playlists
             const currentList =
                 JSON.parse(localStorage.getItem("playlist_list")) || [];
 
-            // remove selected playlist
             const updatedList = currentList.filter(
                 (playlist) => playlist !== selected
             );
 
-            // remove actual playlist data
             localStorage.removeItem(`playlist_${selected}`);
 
-            // update playlist list
             localStorage.setItem(
                 "playlist_list",
                 JSON.stringify(updatedList)
             );
 
-            // remove playlist_edit if it was the deleted one
             const editRaw = localStorage.getItem("playlist_edit");
 
             if (editRaw) {
                 const parsed = JSON.parse(editRaw);
-
                 if (parsed?.name === selected) {
                     localStorage.removeItem("playlist_edit");
                 }
             }
 
-            // update state
             setPlaylists(updatedList);
 
-            // select first remaining playlist
             if (updatedList.length > 0) {
                 const nextPlaylist = updatedList[0];
-
                 setSelected(nextPlaylist);
-
-                // load next playlist into playlist_edit
-                const saved = localStorage.getItem(
-                    `playlist_${nextPlaylist}`
-                );
-
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-
-                    const draft = {
-                        name: parsed.name,
-                        creationTime: parsed.creationTime,
-                        presets: parsed.presets || [],
-                        settings: parsed.settings || {},
-                    };
-
-                    localStorage.setItem(
-                        "playlist_edit",
-                        JSON.stringify(draft)
-                    );
-                }
             } else {
-                // no playlists left
                 setSelected("");
                 localStorage.removeItem("playlist_edit");
             }
-
-            console.log("Playlist deleted");
         } catch (e) {
-            console.error("Failed to delete playlist", e);
+            console.error(e);
         }
     };
-
-    const [playlists, setPlaylists] = useState([]);
-    const [selected, setSelected] = useState("");
 
     const presetAmount = (() => {
         try {
             const raw = localStorage.getItem("playlist_edit");
             if (!raw) return 0;
-
             const parsed = JSON.parse(raw);
             return parsed?.presets?.length || 0;
-        } catch (e) {
+        } catch {
             return 0;
         }
     })();
@@ -123,86 +81,22 @@ export default function PlaylistPage() {
     useEffect(() => {
         const list = JSON.parse(localStorage.getItem("playlist_list")) || [];
         setPlaylists(list);
-
-        const editRaw = localStorage.getItem("playlist_edit");
-
-        if (editRaw) {
-            try {
-                const editParsed = JSON.parse(editRaw);
-
-                if (editParsed.name && list.includes(editParsed.name)) {
-                    setSelected(editParsed.name);
-                    return; // stop here, we found the correct one
-                }
-            } catch (e) {
-                console.error("Failed to parse playlist_edit", e);
-            }
-        }
-
-        // fallback logic if no valid playlist_edit
-        if (list.length === 1) {
-            const onlyPlaylist = list[0];
-            setSelected(onlyPlaylist);
-
-            const playlistKey = `playlist_${onlyPlaylist}`;
-            const saved = localStorage.getItem(playlistKey);
-
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-
-                    const draft = {
-                        name: parsed.name,
-                        creationTime: parsed.creationTime,
-                        presets: parsed.presets || [],
-                        settings: parsed.settings || {},
-                    };
-
-                    localStorage.setItem("playlist_edit", JSON.stringify(draft));
-                } catch (e) {
-                    console.error("Failed to load single playlist", e);
-                }
-            }
-        } else if (list.length > 1) {
-            setSelected(list[0]);
-        }
+        setSelected(list[0] || "");
     }, []);
+
     const handleSelect = (name) => {
         setSelected(name);
-
-        const playlistKey = `playlist_${name}`;
-        const saved = localStorage.getItem(playlistKey);
-
-        if (!saved) return;
-
-        try {
-            const parsed = JSON.parse(saved);
-
-            const draft = {
-                name: parsed.name,
-                creationTime: parsed.creationTime,
-                presets: parsed.presets || [],
-                settings: parsed.settings || {},
-            };
-
-            localStorage.setItem("playlist_edit", JSON.stringify(draft));
-        } catch (e) {
-            console.error("Failed to load playlist", e);
-        }
     };
 
     return (
-        <div style={pageStyle}>
+        <div className="playlist-overview-page">
 
-            {/* Title */}
-            <h1 style={titleStyle}>Audiovizwiz Select Playlist</h1>
+            <h1 className="playlist-title">Audiovizwiz Select Playlist</h1>
 
-            {/* Dropdown Title */}
-            <h3 style={sectionTitleStyle}>Current Player Settings</h3>
+            <h3 className="playlist-section-title">Current Player Settings</h3>
 
-            {/* Dropdown */}
             <select
-                style={dropdownStyle}
+                className="playlist-dropdown"
                 value={selected}
                 onChange={(e) => handleSelect(e.target.value)}
             >
@@ -216,66 +110,56 @@ export default function PlaylistPage() {
                     ))
                 )}
             </select>
-            {/* Information Box */}
-            <div style={infoBoxStyle}>
+
+            <div className="playlist-info-box">
                 <p>PRESET AMOUNT: {presetAmount}</p>
                 <p>RANDOMIZE ORDER:</p>
                 <p>CYCLE BETWEEN PRESETS:</p>
                 <p>INPUT: {mic?.name || "Default Microphone"}</p>
                 <p>INPUT LEVEL:</p>
             </div>
-            {/* Buttons Start */}
+
             <button
-                style={primaryButtonStyle}
+                className="playlist-primary-button"
                 onClick={() => {
                     const editRaw = localStorage.getItem("playlist_edit");
-
                     if (!editRaw) return;
 
                     try {
                         const parsed = JSON.parse(editRaw);
 
-                        if (!parsed?.presets || parsed.presets.length === 0) {
-                            console.warn("No presets in playlist_edit");
-                            return;
-                        }
-
-                        // save runtime playlist
                         localStorage.setItem(
                             "playlists_current",
-                            JSON.stringify({
-                                name: parsed.name,
-                                presets: parsed.presets,
-                                settings: parsed.settings || {},
-                                creationTime: parsed.creationTime,
-                            })
+                            JSON.stringify(parsed)
                         );
 
-                        // go to visualizer (no presetKey)
                         navigate("/visualizer");
                     } catch (e) {
-                        console.error("Failed to start visualizer", e);
+                        console.error(e);
                     }
                 }}
             >
-                <FaPlay size={20}/>
+                <FaPlay size={20} />
                 Start Visualizer
             </button>
-            {/* Buttons Row 1 */}
-            <div style={buttonRowStyle}>
+
+            <div className="playlist-button-row">
                 {selected && playlists.length > 0 && (
-                    <Link to="/playlists/edit" style={secondaryButtonStyle}>
+                    <Link to="/playlists/edit" className="playlist-secondary-button">
                         <FaEdit size={20} />
                         Edit Playlist
                     </Link>
-
                 )}
-                <Link to="/playlists/create" style={secondaryButtonStyle}>
+
+                <Link to="/playlists/create" className="playlist-secondary-button">
                     <FaPlus size={20} />
                     Create New Playlist
                 </Link>
 
-                <button style={deleteButtonStyle} onClick={() => setShowOverlay(true)}>
+                <button
+                    className="playlist-delete-button"
+                    onClick={() => setShowOverlay(true)}
+                >
                     <FaTrashAlt size={20} />
                     Delete Playlist
                 </button>
@@ -290,13 +174,14 @@ export default function PlaylistPage() {
                     />
                 )}
             </div>
-            {/* Buttons Row 2 (bottom actions) */}
-            <div style={bottomRowStyle}>
-                <Link to="/" style={dangerButtonStyle}>
+
+            <div className="playlist-bottom-row">
+                <Link to="/" className="playlist-back-button">
                     <IoArrowBackOutline size={20} />
                     Back
                 </Link>
-                <Link to="/settings" style={settingsButtonStyle}>
+
+                <Link to="/settings" className="playlist-settings-button">
                     <VscSettings size={20} />
                     Settings
                 </Link>
@@ -305,179 +190,3 @@ export default function PlaylistPage() {
         </div>
     );
 }
-
-const pageStyle = {
-    height: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    padding: "50px",
-    backgroundColor: "#1a1a1a",
-    color: "white",
-    gap: "20px",
-    fontFamily: '"poppins-thin", sans-serif',
-    fontWeight: 700,
-    fontStyle: "normal",
-    alignItems:"flex-start"
-};
-
-const titleStyle = {
-    fontFamily: '"poppins-thin", sans-serif',
-    fontSize: "42px",
-    margin: 0
-};
-
-const sectionTitleStyle = {
-    fontFamily: '"poppins-thin", sans-serif',
-    letterSpacing: "3px",
-    fontWeight: "600",
-    marginTop: "80px",
-    marginBottom: "0"
-};
-
-const dropdownStyle = {
-    fontFamily: '"poppins-thin", sans-serif',
-    padding: "10px",
-    width: "50%",
-    fontSize: "16px",
-    border: "none",
-    borderRadius: "8px"
-};
-
-const infoBoxStyle = {
-    marginTop: "10px",
-    padding: "15px",
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderRadius: "8px",
-    lineHeight: "1.8",
-    textAlign: "left",
-    width: "50%"
-};
-
-const buttonRowStyle = {
-    display: "flex",
-    gap: "15px",
-    marginTop: "10px"
-};
-
-const bottomRowStyle = {
-    display: "flex",
-    gap: "15px",
-    marginTop: "auto" // pushes to bottom
-};
-
-const primaryButtonStyle = {
-    fontFamily: '"poppins-thin", sans-serif',
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-    border: "none",
-
-    padding: "12px 20px",
-    borderRadius: "8px",
-
-    backgroundColor: "rgb(0 255 6 / 0.18)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-
-    color: "white",
-    textDecoration: "none",
-
-    fontSize: "18px",
-
-    cursor: "pointer",
-    transition: "0.2s ease",
-};
-
-const secondaryButtonStyle = {
-    fontFamily: '"poppins-thin", sans-serif',
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-    border: "none",
-
-    padding: "12px 20px",
-    borderRadius: "8px",
-
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-
-    color: "white",
-    textDecoration: "none",
-
-    fontSize: "18px",
-
-    cursor: "pointer",
-    transition: "0.2s ease",
-};
-
-const dangerButtonStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-
-    padding: "12px 20px",
-    borderRadius: "8px",
-
-    backgroundColor: "rgb(255 255 255 / 0.34)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-
-    color: "white",
-    textDecoration: "none",
-
-    fontSize: "18px",
-
-    cursor: "pointer",
-    transition: "0.2s ease",
-};
-
-const deleteButtonStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-
-    padding: "12px 20px",
-    borderRadius: "8px",
-
-    backgroundColor: "rgb(255 0 0 / 0.34)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-
-    color: "white",
-    textDecoration: "none",
-
-    fontSize: "18px",
-
-    cursor: "pointer",
-    transition: "0.2s ease",
-    border: "none",
-    fontWeight: "bold",
-}
-
-const settingsButtonStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-
-    padding: "12px 20px",
-    borderRadius: "8px",
-
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-
-    color: "white",
-    textDecoration: "none",
-
-    fontSize: "18px",
-
-    cursor: "pointer",
-    transition: "0.2s ease",
-};
-

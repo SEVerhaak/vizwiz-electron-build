@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GrFormNextLink } from "react-icons/gr";
 import ErrorOverlay from "../../utils/Overlays/genericErrorOverlay.jsx";
 import { setPlaylistMode } from "../../utils/playlistModeSwitcher.jsx";
+import {FaArrowLeft, FaArrowRight} from "react-icons/fa";
 
 export default function EditPlaylist() {
     setPlaylistMode("editing");
@@ -91,11 +92,7 @@ export default function EditPlaylist() {
 
     return (
         <div className="edit-playlist-page">
-            <h1>EDIT PLAYLIST</h1>
-
-            <h2 className="playlist-name">
-                Playlist name: {playlistName}
-            </h2>
+            <h1>EDIT: {playlistName}</h1>
 
             <div className="columns-wrapper">
                 {/* LEFT */}
@@ -130,9 +127,10 @@ export default function EditPlaylist() {
                     <div className="button-row">
                         <Link
                             to="/playlists"
-                            className="playlist-button secondary"
+                            className="playlist-button back-button"
                         >
-                            ← Back
+                            <FaArrowLeft size={20}/>
+                            Back
                         </Link>
 
                         <button
@@ -151,8 +149,8 @@ export default function EditPlaylist() {
                                 navigate("/playlists/settings");
                             }}
                         >
-                            <GrFormNextLink size={20} />
                             Next step
+                            <FaArrowRight size={20}/>
                         </button>
                     </div>
                 </div>

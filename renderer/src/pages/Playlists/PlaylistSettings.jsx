@@ -1,7 +1,9 @@
-import { useState } from "react";
+import {useState} from "react";
 import SelectedVizItem from "./SelectedVizItem.jsx";
-import { Link, useNavigate } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import PlaylistSavePopup from "./PlaylistPopUp.jsx";
+import {FaArrowLeft} from "react-icons/fa";
+import {FaSave} from "react-icons/fa";
 import "./style/PlayListSettingsStyling.css";
 
 export default function PlaylistSettingsPage() {
@@ -48,33 +50,6 @@ export default function PlaylistSettingsPage() {
                 {/* LEFT SIDE */}
                 <div className="playlist-settings">
                     <h2 className="playlist-title">Settings</h2>
-
-                    <div className="setting-block">
-                        <label>Playlist Name - Setting Input</label>
-                        <input className="setting-input" placeholder="Enter name..." />
-                    </div>
-
-                    <div className="setting-block">
-                        <label>Audio Quality - Setting Input</label>
-                        <input className="setting-input" placeholder="High / Medium / Low" />
-                    </div>
-
-                    <div className="setting-block">
-                        <label>Theme Mode - Setting Input</label>
-                        <input className="setting-input" placeholder="Dark / Light" />
-                    </div>
-
-                    <div className="setting-block">
-                        <label>Playback Speed - Setting Input</label>
-                        <input className="setting-input" placeholder="1.0x" />
-                    </div>
-
-                    {Array.from({ length: 20 }).map((_, i) => (
-                        <div key={i} className="setting-block">
-                            <label>Extra Setting {i + 1}</label>
-                            <input className="setting-input" placeholder="..." />
-                        </div>
-                    ))}
                 </div>
 
                 {/* RIGHT SIDE */}
@@ -95,67 +70,70 @@ export default function PlaylistSettingsPage() {
             </div>
 
             {/* BACK BUTTON */}
-            <button
-                className="back-button"
-                onClick={() => {
-                    if (window.history.length > 1) {
-                        navigate(-1);
-                    } else {
-                        navigate("/");
-                    }
-                }}
-            >
-                ← Back
-            </button>
+            <div className="button-row">
+                <button
+                    className="back-button"
+                    onClick={() => {
+                        if (window.history.length > 1) {
+                            navigate(-1);
+                        } else {
+                            navigate("/");
+                        }
+                    }}
+                >
+                    <FaArrowLeft/>
+                    Back
+                </button>
 
-            {/* POPUP */}
-            {showPopup && (
-                <PlaylistSavePopup
-                    currentPresets={selectedViz}
-                    onClose={() => setShowPopup(false)}
-                />
-            )}
+                {/* POPUP */}
+                {showPopup && (
+                    <PlaylistSavePopup
+                        currentPresets={selectedViz}
+                        onClose={() => setShowPopup(false)}
+                    />
+                )}
 
-            {/* SAVE BUTTON */}
-            <button
-                className="save-button"
-                onClick={() => {
-                    const mode = localStorage.getItem("playlist_mode");
+                {/* SAVE BUTTON */}
+                <button
+                    className="save-button"
+                    onClick={() => {
+                        const mode = localStorage.getItem("playlist_mode");
 
-                    if (mode === "creating") {
-                        setShowPopup(true);
-                    }
+                        if (mode === "creating") {
+                            setShowPopup(true);
+                        }
 
-                    const draft = JSON.parse(
-                        localStorage.getItem("playlist_edit") || "{}"
-                    );
+                        const draft = JSON.parse(
+                            localStorage.getItem("playlist_edit") || "{}"
+                        );
 
-                    const playlistName = draft.name;
+                        const playlistName = draft.name;
 
-                    if (!playlistName) {
-                        console.error("No playlist name found in playlist_edit");
-                        return;
-                    }
+                        if (!playlistName) {
+                            console.error("No playlist name found in playlist_edit");
+                            return;
+                        }
 
-                    const finalPlaylist = {
-                        name: playlistName,
-                        creationTime: draft.creationTime || new Date().toISOString(),
-                        presets: selectedViz,
-                        settings: draft.settings || {},
-                    };
+                        const finalPlaylist = {
+                            name: playlistName,
+                            creationTime: draft.creationTime || new Date().toISOString(),
+                            presets: selectedViz,
+                            settings: draft.settings || {},
+                        };
 
-                    if (mode === "editing") {
-                        const storageKey = `playlist_${playlistName}`;
-                        localStorage.setItem(storageKey, JSON.stringify(finalPlaylist));
-                        localStorage.setItem("playlist_edit", JSON.stringify(finalPlaylist));
+                        if (mode === "editing") {
+                            const storageKey = `playlist_${playlistName}`;
+                            localStorage.setItem(storageKey, JSON.stringify(finalPlaylist));
+                            localStorage.setItem("playlist_edit", JSON.stringify(finalPlaylist));
 
-                        navigate("/playlists");
-                    }
-                }}
-            >
-                Save Playlist
-            </button>
-
+                            navigate("/playlists");
+                        }
+                    }}
+                >
+                    <FaSave/>
+                    Save Playlist
+                </button>
+            </div>
         </div>
     );
 }

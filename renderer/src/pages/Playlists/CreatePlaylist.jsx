@@ -8,6 +8,7 @@ import {GrFormNextLink} from "react-icons/gr";
 
 import ErrorOverlay from "../../utils/Overlays/genericErrorOverlay.jsx";
 import {setPlaylistMode} from "../../utils/playlistModeSwitcher.jsx";
+import {FaArrowLeft, FaArrowRight} from "react-icons/fa";
 
 export default function CreatePlaylist() {
     setPlaylistMode("creating");
@@ -85,7 +86,7 @@ export default function CreatePlaylist() {
 
     return (
         <div className="edit-playlist-page">
-            <h1>CREATE NEW PLAYLIST</h1>
+            <h1>Create New Playlist</h1>
 
             <div className="columns-wrapper">
                 {/* LEFT */}
@@ -126,13 +127,14 @@ export default function CreatePlaylist() {
                     <div className="button-row">
                         <Link
                             to="/playlists"
-                            className="playlist-button secondary"
+                            className="playlist-button back-button"
                         >
-                            ← Back
+                            <FaArrowLeft size={20}/>
+                            Back
                         </Link>
 
                         <button
-                            className="playlist-button"
+                            className="playlist-button next-button"
                             onClick={() => {
                                 if (
                                     selectedViz.length === 0
@@ -152,8 +154,8 @@ export default function CreatePlaylist() {
                                 );
                             }}
                         >
-                            <GrFormNextLink size={20}/>
                             Next step
+                            <FaArrowRight size={20}/>
                         </button>
                     </div>
                 </div>
