@@ -4,10 +4,97 @@ import {VscSettings} from "react-icons/vsc";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
+import { FaPlay } from "react-icons/fa6";
+import { FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import ChoiceOverlay from "../../utils/Overlays/genericChoiceOverlay.jsx";
 
 export default function PlaylistPage() {
     const navigate = useNavigate();
+
+    // for the choice overlay upon trying to delete the playlist
+    const [showOverlay, setShowOverlay] = useState(false);
+
+    const handleResult = (accepted) => {
+        setShowOverlay(false);
+
+        if (!accepted) {
+            console.log("User rejected");
+            return;
+        }
+
+        if (!selected) return;
+
+        try {
+            // get current playlists
+            const currentList =
+                JSON.parse(localStorage.getItem("playlist_list")) || [];
+
+            // remove selected playlist
+            const updatedList = currentList.filter(
+                (playlist) => playlist !== selected
+            );
+
+            // remove actual playlist data
+            localStorage.removeItem(`playlist_${selected}`);
+
+            // update playlist list
+            localStorage.setItem(
+                "playlist_list",
+                JSON.stringify(updatedList)
+            );
+
+            // remove playlist_edit if it was the deleted one
+            const editRaw = localStorage.getItem("playlist_edit");
+
+            if (editRaw) {
+                const parsed = JSON.parse(editRaw);
+
+                if (parsed?.name === selected) {
+                    localStorage.removeItem("playlist_edit");
+                }
+            }
+
+            // update state
+            setPlaylists(updatedList);
+
+            // select first remaining playlist
+            if (updatedList.length > 0) {
+                const nextPlaylist = updatedList[0];
+
+                setSelected(nextPlaylist);
+
+                // load next playlist into playlist_edit
+                const saved = localStorage.getItem(
+                    `playlist_${nextPlaylist}`
+                );
+
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+
+                    const draft = {
+                        name: parsed.name,
+                        creationTime: parsed.creationTime,
+                        presets: parsed.presets || [],
+                        settings: parsed.settings || {},
+                    };
+
+                    localStorage.setItem(
+                        "playlist_edit",
+                        JSON.stringify(draft)
+                    );
+                }
+            } else {
+                // no playlists left
+                setSelected("");
+                localStorage.removeItem("playlist_edit");
+            }
+
+            console.log("Playlist deleted");
+        } catch (e) {
+            console.error("Failed to delete playlist", e);
+        }
+    };
 
     const [playlists, setPlaylists] = useState([]);
     const [selected, setSelected] = useState("");
@@ -137,44 +224,45 @@ export default function PlaylistPage() {
                 <p>INPUT: {mic?.name || "Default Microphone"}</p>
                 <p>INPUT LEVEL:</p>
             </div>
+            {/* Buttons Start */}
+            <button
+                style={primaryButtonStyle}
+                onClick={() => {
+                    const editRaw = localStorage.getItem("playlist_edit");
 
+                    if (!editRaw) return;
+
+                    try {
+                        const parsed = JSON.parse(editRaw);
+
+                        if (!parsed?.presets || parsed.presets.length === 0) {
+                            console.warn("No presets in playlist_edit");
+                            return;
+                        }
+
+                        // save runtime playlist
+                        localStorage.setItem(
+                            "playlists_current",
+                            JSON.stringify({
+                                name: parsed.name,
+                                presets: parsed.presets,
+                                settings: parsed.settings || {},
+                                creationTime: parsed.creationTime,
+                            })
+                        );
+
+                        // go to visualizer (no presetKey)
+                        navigate("/visualizer");
+                    } catch (e) {
+                        console.error("Failed to start visualizer", e);
+                    }
+                }}
+            >
+                <FaPlay size={20}/>
+                Start Visualizer
+            </button>
             {/* Buttons Row 1 */}
             <div style={buttonRowStyle}>
-                <button
-                    style={primaryButtonStyle}
-                    onClick={() => {
-                        const editRaw = localStorage.getItem("playlist_edit");
-
-                        if (!editRaw) return;
-
-                        try {
-                            const parsed = JSON.parse(editRaw);
-
-                            if (!parsed?.presets || parsed.presets.length === 0) {
-                                console.warn("No presets in playlist_edit");
-                                return;
-                            }
-
-                            // save runtime playlist
-                            localStorage.setItem(
-                                "playlists_current",
-                                JSON.stringify({
-                                    name: parsed.name,
-                                    presets: parsed.presets,
-                                    settings: parsed.settings || {},
-                                    creationTime: parsed.creationTime,
-                                })
-                            );
-
-                            // go to visualizer (no presetKey)
-                            navigate("/visualizer");
-                        } catch (e) {
-                            console.error("Failed to start visualizer", e);
-                        }
-                    }}
-                >
-                    Start Visualizer
-                </button>
                 {selected && playlists.length > 0 && (
                     <Link to="/playlists/edit" style={secondaryButtonStyle}>
                         <FaEdit size={20} />
@@ -184,10 +272,24 @@ export default function PlaylistPage() {
                 )}
                 <Link to="/playlists/create" style={secondaryButtonStyle}>
                     <FaPlus size={20} />
-                    Create Playlist
+                    Create New Playlist
                 </Link>
-            </div>
 
+                <button style={deleteButtonStyle} onClick={() => setShowOverlay(true)}>
+                    <FaTrashAlt size={20} />
+                    Delete Playlist
+                </button>
+
+                {showOverlay && (
+                    <ChoiceOverlay
+                        message="Are you sure you want to delete this item?"
+                        severity="error"
+                        acceptText="Delete"
+                        rejectText="Cancel"
+                        onChoice={handleResult}
+                    />
+                )}
+            </div>
             {/* Buttons Row 2 (bottom actions) */}
             <div style={bottomRowStyle}>
                 <Link to="/" style={dangerButtonStyle}>
@@ -269,12 +371,12 @@ const primaryButtonStyle = {
     alignItems: "center",
     justifyContent: "center",
     gap: "10px",
-border: "none",
+    border: "none",
 
     padding: "12px 20px",
     borderRadius: "8px",
 
-    backgroundColor: "rgba(255,255,255,0.18)",
+    backgroundColor: "rgb(0 255 6 / 0.18)",
     backdropFilter: "blur(8px)",
     WebkitBackdropFilter: "blur(8px)",
 
@@ -320,7 +422,7 @@ const dangerButtonStyle = {
     padding: "12px 20px",
     borderRadius: "8px",
 
-    backgroundColor: "rgba(250,0,0,0.36)",
+    backgroundColor: "rgb(255 255 255 / 0.34)",
     backdropFilter: "blur(8px)",
     WebkitBackdropFilter: "blur(8px)",
 
@@ -332,6 +434,30 @@ const dangerButtonStyle = {
     cursor: "pointer",
     transition: "0.2s ease",
 };
+
+const deleteButtonStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+
+    padding: "12px 20px",
+    borderRadius: "8px",
+
+    backgroundColor: "rgb(255 0 0 / 0.34)",
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
+
+    color: "white",
+    textDecoration: "none",
+
+    fontSize: "18px",
+
+    cursor: "pointer",
+    transition: "0.2s ease",
+    border: "none",
+    fontWeight: "bold",
+}
 
 const settingsButtonStyle = {
     display: "flex",

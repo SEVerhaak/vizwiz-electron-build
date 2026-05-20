@@ -22,6 +22,17 @@ export default function SelectedVizItem({ name, onRemove }) {
         padding: "6px 10px",
         cursor: "pointer",
         flex: 1,
+        borderRadius: "8px",
+        border: "none"
+    };
+
+    const removeButtonStyle = {
+        padding: "6px 10px",
+        cursor: "pointer",
+        flex: 1,
+        backgroundColor: "red",
+        border: "none",
+        borderRadius: "8px",
     };
 
     return (
@@ -30,7 +41,7 @@ export default function SelectedVizItem({ name, onRemove }) {
 
             <div style={buttonRowStyle}>
                 <button style={buttonStyle}>Preview</button>
-                <button style={buttonStyle} onClick={() => onRemove(name)}>
+                <button style={removeButtonStyle} onClick={() => onRemove(name)}>
                     Remove
                 </button>
             </div>

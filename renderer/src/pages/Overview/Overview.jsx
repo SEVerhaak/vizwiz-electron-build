@@ -1,11 +1,17 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, {useEffect, useState, useRef, useMemo} from "react";
 import butterchurn from "butterchurn";
 import butterchurnPresets from "butterchurn-presets";
 import extraPresets from "butterchurn-presets/lib/butterchurnPresetsExtra.min.js";
 import extraPresets2 from "butterchurn-presets/lib/butterchurnPresetsExtra2.min.js";
 import presetsNonMinimal from "butterchurn-presets/lib/butterchurnPresetsNonMinimal.min.js";
 import presetsMD1 from "butterchurn-presets/lib/butterchurnPresetsMD1.min.js";
-import { useLocation } from "react-router-dom";
+import {useLocation} from "react-router-dom";
+import {
+    FaAngleDoubleLeft,
+    FaAngleLeft,
+    FaAngleRight,
+    FaAngleDoubleRight
+} from "react-icons/fa";
 import "./Overview.css";
 
 const butterchurnLib = butterchurn.default || butterchurn;
@@ -18,7 +24,7 @@ const allPacks = {
     MD1: presetsMD1.getPresets(),
 };
 
-export default function Overview({ onVizClick }) {
+export default function Overview({onVizClick}) {
     const location = useLocation();
 
     const presetsPerPage = 6;
@@ -97,7 +103,8 @@ export default function Overview({ onVizClick }) {
                     const ext = viz.gl.getExtension("WEBGL_lose_context");
                     ext?.loseContext();
                 }
-            } catch {}
+            } catch {
+            }
         });
 
         vizRefs.current = [];
@@ -117,7 +124,8 @@ export default function Overview({ onVizClick }) {
             loopsRef.current.forEach((id) => {
                 try {
                     cancelAnimationFrame(id);
-                } catch {}
+                } catch {
+                }
             });
             loopsRef.current = [];
         }
@@ -152,24 +160,28 @@ export default function Overview({ onVizClick }) {
                     if (canvas) {
                         canvas.width = canvas.width; // resets WebGL context
                     }
-                } catch {}
+                } catch {
+                }
             });
         }
 
         // 4. Stop microphone stream
         try {
             stream?.getTracks().forEach((track) => track.stop());
-        } catch {}
+        } catch {
+        }
 
         // 5. Disconnect analyser
         try {
             analyser?.disconnect();
-        } catch {}
+        } catch {
+        }
 
         // 6. Close audio context
         try {
             audioContext?.close();
-        } catch {}
+        } catch {
+        }
 
         // 7. Clear analyser ref
         if (analyserRef) {
@@ -193,7 +205,7 @@ export default function Overview({ onVizClick }) {
 
         const setup = async () => {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream = await navigator.mediaDevices.getUserMedia({audio: true});
 
                 audioContext = new AudioContext();
                 const source = audioContext.createMediaStreamSource(stream);
@@ -246,7 +258,8 @@ export default function Overview({ onVizClick }) {
                             viz?.gl
                                 ?.getExtension("WEBGL_lose_context")
                                 ?.loseContext();
-                        } catch {}
+                        } catch {
+                        }
                     });
 
                     stream?.getTracks().forEach((t) => t.stop());
@@ -315,15 +328,29 @@ export default function Overview({ onVizClick }) {
             </div>
 
             <div className="overview-pagination">
-                <button onClick={goToFirstPage}>⏮ First</button>
-                <button onClick={prevPage}>← Prev</button>
+                <button className="pagination-btn" onClick={goToFirstPage}>
+                    <FaAngleDoubleLeft/>
+                    First
+                </button>
+
+                <button className="pagination-btn" onClick={prevPage}>
+                    <FaAngleLeft/>
+                    Prev
+                </button>
 
                 <span className="overview-page-indicator">
                     Page {page + 1} of {totalPages}
                 </span>
 
-                <button onClick={nextPage}>Next →</button>
-                <button onClick={goToLastPage}>Last ⏭</button>
+                <button className="pagination-btn" onClick={nextPage}>
+                    Next
+                    <FaAngleRight/>
+                </button>
+
+                <button className="pagination-btn" onClick={goToLastPage}>
+                    Last
+                    <FaAngleDoubleRight/>
+                </button>
             </div>
         </div>
     );

@@ -1,0 +1,85 @@
+/* PAGE WRAPPER */
+.playlist-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+/* MAIN LAYOUT */
+.playlist-layout {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-around;
+    height: 80vh;
+    width: 100%;
+}
+
+/* LEFT SETTINGS PANEL */
+.playlist-settings {
+    width: 60%;
+    padding: 20px;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+}
+
+.playlist-title {
+    margin-bottom: 20px;
+}
+
+/* SETTINGS BLOCK */
+.setting-block {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* INPUTS */
+.setting-input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* RIGHT PREVIEW PANEL */
+.playlist-preview {
+    width: 30%;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* EMPTY STATE */
+.empty-state {
+    color: #777;
+}
+
+/* BACK BUTTON */
+.back-button {
+    margin-top: 20px;
+    display: block;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    background: #eee;
+    color: black;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+/* SAVE BUTTON */
+.save-button {
+    margin-top: 10px;
+    display: block;
+    padding: 12px;
+    width: 100%;
+    text-align: center;
+    background: #1976d2;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}

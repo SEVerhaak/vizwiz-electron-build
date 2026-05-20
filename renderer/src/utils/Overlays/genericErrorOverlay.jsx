@@ -40,11 +40,12 @@ export default function ErrorOverlay({
                 alignItems: "center",
                 justifyContent: "center",
                 zIndex: 9999,
+                fontWeight: "bold",
             }}
         >
             <div
                 style={{
-                    background: "white",
+                    background: "#192126",
                     padding: "20px",
                     borderRadius: "8px",
                     width: "320px",
@@ -70,7 +71,7 @@ export default function ErrorOverlay({
                     <Icon />
                 </div>
 
-                <div style={{ color: "#333" }}>
+                <div style={{ color: "white" }}>
                     {message}
                 </div>
 
@@ -80,6 +81,10 @@ export default function ErrorOverlay({
                         marginTop: "10px",
                         padding: "8px 12px",
                         cursor: "pointer",
+                        backgroundColor: "white",
+                        border: "none",
+                        borderRadius: "8px",
+                        color: "#192126",
                     }}
                 >
                     Back

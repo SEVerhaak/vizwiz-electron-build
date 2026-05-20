@@ -1,0 +1,161 @@
+/* =========================
+   GLOBAL SAFETY
+========================= */
+* {
+    box-sizing: border-box;
+}
+
+/* =========================
+   PAGE WRAPPER (CRITICAL)
+========================= */
+.edit-playlist-page {
+    padding: 20px;
+    color: white;
+
+    height: 100vh;
+    overflow: hidden; /* 🔥 prevents page scroll chaos */
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+}
+
+/* =========================
+   MAIN TWO COLUMNS WRAPPER
+========================= */
+.columns-wrapper {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    width: 100%;
+    height: 90vh;
+    max-width: 80vw;
+    min-height: 0;
+}
+
+/* =========================
+   LEFT SIDE (OVERVIEW)
+========================= */
+.left-column {
+    width: 60%;
+
+    background-color: black;
+    border-radius: 8px;
+
+    padding: 1rem;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* header stays fixed height */
+.left-header {
+    flex: 0 0 auto;
+    margin-bottom: 10px;
+}
+
+/* THIS is the key fix */
+.overview-container {
+    flex: 1;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+/* =========================
+   RIGHT SIDE
+========================= */
+.right-column {
+    width: 30%;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 0;
+    height: 100%;
+}
+
+/* scrollable middle box */
+.right-box {
+    flex: 1; /* 🔥 takes remaining space */
+
+    min-height: 0;
+    overflow-y: auto;
+
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+
+    background: rgba(255,255,255,0.03);
+}
+
+/* =========================
+   BUTTON AREA (ALWAYS VISIBLE)
+========================= */
+.button-row {
+    flex: 0 0 auto;
+
+    display: flex;
+    gap: 10px;
+
+    margin-top: 10px;
+
+    justify-content: space-between;
+}
+
+.playlist-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 12px 20px;
+    border-radius: 8px;
+
+    border: none;
+
+    background: rgba(255,255,255,0.08);
+    color: white;
+
+    font-size: 18px;
+    cursor: pointer;
+
+    transition: 0.2s ease;
+
+    text-decoration: none;
+}
+
+.playlist-button:hover {
+    transform: translateY(-2px);
+}
+
+.playlist-button.secondary {
+    background: rgba(255,255,255,0.05);
+}
+
+/* =========================
+   TEXT STYLES
+========================= */
+h1, h2 {
+    text-align: left;
+    font-family: "poppins-thin", sans-serif;
+}
+
+h1 {
+    font-weight: bold;
+}
+
+h2 {
+    font-weight: 300;
+}
+
+.selection-title {
+    text-align: center;
+}

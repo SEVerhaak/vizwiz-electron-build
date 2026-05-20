@@ -10,6 +10,9 @@ import {useParams, useNavigate} from "react-router-dom";
 import "./Visualiser.css"; // <-- Import CSS
 
 export default function Visualizer() {
+
+    let frameId;
+
     const navigate = useNavigate();
 
     const {presetKey} = useParams(); // get the clicked preset key
@@ -269,7 +272,7 @@ export default function Visualizer() {
                         console.warn("Render error:", err);
                     }
 
-                    requestAnimationFrame(render);
+                    frameId = requestAnimationFrame(render);
                 }
 
                 render();
