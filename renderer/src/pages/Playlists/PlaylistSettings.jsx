@@ -2,7 +2,7 @@ import { useState } from "react";
 import SelectedVizItem from "./SelectedVizItem.jsx";
 import { Link, useNavigate } from "react-router-dom";
 import PlaylistSavePopup from "./PlaylistPopUp.jsx";
-import "./PlayListSettingsStyling.css";
+import "./style/PlayListSettingsStyling.css";
 
 export default function PlaylistSettingsPage() {
     const [showPopup, setShowPopup] = useState(false);

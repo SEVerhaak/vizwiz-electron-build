@@ -1,4 +1,4 @@
-import "./PlayListEditingPage.css";
+import "./style/PlayListEditingPage.css";
 
 import { useState, useEffect } from "react";
 import Overview from "../Overview/Overview.jsx";

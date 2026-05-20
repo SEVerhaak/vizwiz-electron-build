@@ -12,7 +12,7 @@ import {
     FaAngleRight,
     FaAngleDoubleRight
 } from "react-icons/fa";
-import "./Overview.css";
+import "./style/Overview.css";
 
 const butterchurnLib = butterchurn.default || butterchurn;
 
