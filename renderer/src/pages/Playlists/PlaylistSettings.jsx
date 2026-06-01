@@ -1,17 +1,21 @@
 import {useState} from "react";
 import SelectedVizItem from "./SelectedVizItem.jsx";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import PlaylistSavePopup from "./PlaylistPopUp.jsx";
-import {FaArrowLeft} from "react-icons/fa";
-import {FaSave} from "react-icons/fa";
+import {FaArrowLeft, FaSave} from "react-icons/fa";
 import "./style/PlayListSettingsStyling.css";
+import {getPlaylistMode} from "../../utils/playlistModeSwitcher.jsx";
 
 export default function PlaylistSettingsPage() {
     const [showPopup, setShowPopup] = useState(false);
     const navigate = useNavigate();
 
-    const mode = localStorage.getItem("playlist_mode");
-    const storageKey = mode === "editing" ? "playlist_edit" : "playlist_draft";
+    const mode = getPlaylistMode();
+
+    const storageKey =
+        mode === "editing"
+            ? "playlist_edit"
+            : "playlist_draft";
 
     const [selectedViz, setSelectedViz] = useState(() => {
         const saved = localStorage.getItem(storageKey);
@@ -97,37 +101,53 @@ export default function PlaylistSettingsPage() {
                 <button
                     className="save-button"
                     onClick={() => {
-                        const mode = localStorage.getItem("playlist_mode");
+                        const mode = getPlaylistMode();
 
+                        // Creating a new playlist
                         if (mode === "creating") {
                             setShowPopup(true);
-                        }
-
-                        const draft = JSON.parse(
-                            localStorage.getItem("playlist_edit") || "{}"
-                        );
-
-                        const playlistName = draft.name;
-
-                        if (!playlistName) {
-                            console.error("No playlist name found in playlist_edit");
                             return;
                         }
 
-                        const finalPlaylist = {
-                            name: playlistName,
-                            creationTime: draft.creationTime || new Date().toISOString(),
-                            presets: selectedViz,
-                            settings: draft.settings || {},
-                        };
-
+                        // Editing an existing playlist
                         if (mode === "editing") {
-                            const storageKey = `playlist_${playlistName}`;
-                            localStorage.setItem(storageKey, JSON.stringify(finalPlaylist));
-                            localStorage.setItem("playlist_edit", JSON.stringify(finalPlaylist));
+                            const draft = JSON.parse(
+                                localStorage.getItem("playlist_edit") || "{}"
+                            );
+
+                            const playlistName = draft.name;
+
+                            if (!playlistName) {
+                                console.error(
+                                    "No playlist name found in playlist_edit"
+                                );
+                                return;
+                            }
+
+                            const finalPlaylist = {
+                                name: playlistName,
+                                creationTime:
+                                    draft.creationTime ||
+                                    new Date().toISOString(),
+                                presets: selectedViz,
+                                settings: draft.settings || {},
+                            };
+
+                            localStorage.setItem(
+                                `playlist_${playlistName}`,
+                                JSON.stringify(finalPlaylist)
+                            );
+
+                            localStorage.setItem(
+                                "playlist_edit",
+                                JSON.stringify(finalPlaylist)
+                            );
 
                             navigate("/playlists");
+                            return;
                         }
+
+                        console.error("Invalid playlist mode:", mode);
                     }}
                 >
                     <FaSave/>

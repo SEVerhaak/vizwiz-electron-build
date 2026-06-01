@@ -1,9 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { VscSettings } from "react-icons/vsc";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { FaPlus, FaPlay, FaEdit, FaTrashAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import ChoiceOverlay from "../../utils/Overlays/genericChoiceOverlay.jsx";
 
 import "./style/PlayListOverviewStyling.css";
@@ -14,6 +13,41 @@ export default function PlaylistPage() {
     const [showOverlay, setShowOverlay] = useState(false);
     const [playlists, setPlaylists] = useState([]);
     const [selected, setSelected] = useState("");
+    const [currentPlaylist, setCurrentPlaylist] = useState(null);
+
+    const loadPlaylist = (name) => {
+        if (!name) return null;
+
+        try {
+            const raw = localStorage.getItem(`playlist_${name}`);
+            if (!raw) return null;
+
+            const parsed = JSON.parse(raw);
+            setCurrentPlaylist(parsed);
+            return parsed;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    };
+
+    useEffect(() => {
+        const list =
+            JSON.parse(localStorage.getItem("playlist_list")) || [];
+
+        setPlaylists(list);
+
+        if (list.length > 0) {
+            const first = list[0];
+            setSelected(first);
+            loadPlaylist(first);
+        }
+    }, []);
+
+    const handleSelect = (name) => {
+        setSelected(name);
+        loadPlaylist(name);
+    };
 
     const handleResult = (accepted) => {
         setShowOverlay(false);
@@ -25,7 +59,7 @@ export default function PlaylistPage() {
                 JSON.parse(localStorage.getItem("playlist_list")) || [];
 
             const updatedList = currentList.filter(
-                (playlist) => playlist !== selected
+                (p) => p !== selected
             );
 
             localStorage.removeItem(`playlist_${selected}`);
@@ -35,39 +69,23 @@ export default function PlaylistPage() {
                 JSON.stringify(updatedList)
             );
 
-            const editRaw = localStorage.getItem("playlist_edit");
-
-            if (editRaw) {
-                const parsed = JSON.parse(editRaw);
-                if (parsed?.name === selected) {
-                    localStorage.removeItem("playlist_edit");
-                }
-            }
-
             setPlaylists(updatedList);
 
             if (updatedList.length > 0) {
-                const nextPlaylist = updatedList[0];
-                setSelected(nextPlaylist);
+                const next = updatedList[0];
+                setSelected(next);
+                loadPlaylist(next);
             } else {
                 setSelected("");
-                localStorage.removeItem("playlist_edit");
+                setCurrentPlaylist(null);
             }
         } catch (e) {
             console.error(e);
         }
     };
 
-    const presetAmount = (() => {
-        try {
-            const raw = localStorage.getItem("playlist_edit");
-            if (!raw) return 0;
-            const parsed = JSON.parse(raw);
-            return parsed?.presets?.length || 0;
-        } catch {
-            return 0;
-        }
-    })();
+    const presetAmount =
+        currentPlaylist?.presets?.length || 0;
 
     const mic = (() => {
         try {
@@ -78,22 +96,16 @@ export default function PlaylistPage() {
         }
     })();
 
-    useEffect(() => {
-        const list = JSON.parse(localStorage.getItem("playlist_list")) || [];
-        setPlaylists(list);
-        setSelected(list[0] || "");
-    }, []);
-
-    const handleSelect = (name) => {
-        setSelected(name);
-    };
-
     return (
         <div className="playlist-overview-page">
 
-            <h1 className="playlist-title">Audiovizwiz Select Playlist</h1>
+            <h1 className="playlist-title">
+                Audiovizwiz Select Playlist
+            </h1>
 
-            <h3 className="playlist-section-title">Current Player Settings</h3>
+            <h3 className="playlist-section-title">
+                Current Player Settings
+            </h3>
 
             <select
                 className="playlist-dropdown"
@@ -122,21 +134,14 @@ export default function PlaylistPage() {
             <button
                 className="playlist-primary-button"
                 onClick={() => {
-                    const editRaw = localStorage.getItem("playlist_edit");
-                    if (!editRaw) return;
+                    if (!currentPlaylist) return;
 
-                    try {
-                        const parsed = JSON.parse(editRaw);
+                    localStorage.setItem(
+                        "playlists_current",
+                        JSON.stringify(currentPlaylist)
+                    );
 
-                        localStorage.setItem(
-                            "playlists_current",
-                            JSON.stringify(parsed)
-                        );
-
-                        navigate("/visualizer");
-                    } catch (e) {
-                        console.error(e);
-                    }
+                    navigate("/visualizer");
                 }}
             >
                 <FaPlay size={20} />
@@ -144,14 +149,21 @@ export default function PlaylistPage() {
             </button>
 
             <div className="playlist-button-row">
+
                 {selected && playlists.length > 0 && (
-                    <Link to="/playlists/edit" className="playlist-secondary-button">
+                    <Link
+                        to="/playlists/edit"
+                        className="playlist-secondary-button"
+                    >
                         <FaEdit size={20} />
                         Edit Playlist
                     </Link>
                 )}
 
-                <Link to="/playlists/create" className="playlist-secondary-button">
+                <Link
+                    to="/playlists/create"
+                    className="playlist-secondary-button"
+                >
                     <FaPlus size={20} />
                     Create New Playlist
                 </Link>
@@ -181,7 +193,10 @@ export default function PlaylistPage() {
                     Back
                 </Link>
 
-                <Link to="/settings" className="playlist-settings-button">
+                <Link
+                    to="/settings"
+                    className="playlist-settings-button"
+                >
                     <VscSettings size={20} />
                     Settings
                 </Link>
