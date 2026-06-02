@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { VscSettings } from "react-icons/vsc";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { FaPlus, FaPlay, FaEdit, FaTrashAlt } from "react-icons/fa";
+import { IoMdArrowRoundBack } from "react-icons/io";
 import ChoiceOverlay from "../../utils/Overlays/genericChoiceOverlay.jsx";
 
 import "./style/PlayListOverviewStyling.css";
+import "../../App.css"
 
 export default function PlaylistPage() {
     const navigate = useNavigate();
@@ -132,7 +134,7 @@ export default function PlaylistPage() {
             </div>
 
             <button
-                className="playlist-primary-button"
+                className="btn btn-success"
                 onClick={() => {
                     if (!currentPlaylist) return;
 
@@ -153,7 +155,7 @@ export default function PlaylistPage() {
                 {selected && playlists.length > 0 && (
                     <Link
                         to="/playlists/edit"
-                        className="playlist-secondary-button"
+                        className="btn btn-primary"
                     >
                         <FaEdit size={20} />
                         Edit Playlist
@@ -162,14 +164,14 @@ export default function PlaylistPage() {
 
                 <Link
                     to="/playlists/create"
-                    className="playlist-secondary-button"
+                    className="btn btn-primary"
                 >
                     <FaPlus size={20} />
                     Create New Playlist
                 </Link>
 
                 <button
-                    className="playlist-delete-button"
+                    className="btn btn-danger"
                     onClick={() => setShowOverlay(true)}
                 >
                     <FaTrashAlt size={20} />
@@ -188,14 +190,14 @@ export default function PlaylistPage() {
             </div>
 
             <div className="playlist-bottom-row">
-                <Link to="/" className="playlist-back-button">
-                    <IoArrowBackOutline size={20} />
+                <Link to="/" className="btn btn-secondary">
+                    <IoMdArrowRoundBack size={20} />
                     Back
                 </Link>
 
                 <Link
                     to="/settings"
-                    className="playlist-settings-button"
+                    className="btn btn-primary"
                 >
                     <VscSettings size={20} />
                     Settings

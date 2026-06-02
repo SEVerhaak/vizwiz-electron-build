@@ -13,6 +13,7 @@ import {
     FaAngleDoubleRight
 } from "react-icons/fa";
 import "./style/Overview.css";
+import "../../App.css"
 
 const butterchurnLib = butterchurn.default || butterchurn;
 
@@ -328,12 +329,12 @@ export default function Overview({onVizClick}) {
             </div>
 
             <div className="overview-pagination">
-                <button className="pagination-btn" onClick={goToFirstPage}>
+                <button className="btn btn-secondary" onClick={goToFirstPage}>
                     <FaAngleDoubleLeft/>
                     First
                 </button>
 
-                <button className="pagination-btn" onClick={prevPage}>
+                <button className="btn btn-secondary" onClick={prevPage}>
                     <FaAngleLeft/>
                     Prev
                 </button>
@@ -342,12 +343,12 @@ export default function Overview({onVizClick}) {
                     Page {page + 1} of {totalPages}
                 </span>
 
-                <button className="pagination-btn" onClick={nextPage}>
+                <button className="btn btn-secondary" onClick={nextPage}>
                     Next
                     <FaAngleRight/>
                 </button>
 
-                <button className="pagination-btn" onClick={goToLastPage}>
+                <button className="btn btn-secondary" onClick={goToLastPage}>
                     Last
                     <FaAngleDoubleRight/>
                 </button>

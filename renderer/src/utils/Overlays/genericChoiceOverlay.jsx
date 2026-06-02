@@ -1,13 +1,13 @@
-import {FaCircleInfo} from "react-icons/fa6";
-import {IoWarning} from "react-icons/io5";
-import {MdOutlineError} from "react-icons/md";
+import { FaCircleInfo } from "react-icons/fa6";
+import { IoWarning } from "react-icons/io5";
+import { MdOutlineError } from "react-icons/md";
 
 export default function ChoiceOverlay({
-                                      message = "",
-                                      severity = "info", // "info" | "warning" | "error"
-                                      acceptText = "Accept",
-                                      rejectText = "Cancel",
-                                      onChoice,
+                                          message = "",
+                                          severity = "info",
+                                          acceptText = "Accept",
+                                          rejectText = "Cancel",
+                                          onChoice,
                                       }) {
     const config = {
         info: {
@@ -27,80 +27,33 @@ export default function ChoiceOverlay({
         },
     };
 
-    const {color, bg, Icon} = config[severity] || config.info;
+    const { color, bg, Icon } = config[severity] || config.info;
 
     const handleChoice = (accepted) => {
-        if (onChoice) {
-            onChoice(accepted);
-        }
+        onChoice?.(accepted);
     };
 
     return (
-        <div
-            style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100vh",
-                background: "rgba(0,0,0,0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 9999,
-            }}
-        >
-            <div
-                style={{
-                    background: "#192126",
-                    padding: "20px",
-                    borderRadius: "8px",
-                    width: "320px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "16px",
-                    alignItems: "center",
-                    textAlign: "center",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                }}
-            >
+        <div style={overlayStyle}>
+            <div style={dialogStyle}>
                 <div
                     style={{
+                        ...iconContainerStyle,
                         background: bg,
-                        color: color,
-                        padding: "12px",
-                        borderRadius: "50%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "28px",
+                        color,
                     }}
                 >
-                    <Icon/>
+                    <Icon />
                 </div>
 
-                <div style={{color: "white"}}>
+                <div style={messageStyle}>
                     {message}
                 </div>
 
-                <div
-                    style={{
-                        display: "flex",
-                        gap: "10px",
-                        width: "100%",
-                        justifyContent: "center",
-                    }}
-                >
+                <div style={buttonContainerStyle}>
                     <button
                         onClick={() => handleChoice(false)}
-                        style={{
-                            padding: "8px 14px",
-                            cursor: "pointer",
-                            border: "none",
-                            background: "#f5f5f5",
-                            borderRadius: "8px",
-                            color: "black",
-                        }}
+                        style={cancelButtonStyle}
                     >
                         {rejectText}
                     </button>
@@ -108,12 +61,8 @@ export default function ChoiceOverlay({
                     <button
                         onClick={() => handleChoice(true)}
                         style={{
-                            padding: "8px 14px",
-                            cursor: "pointer",
-                            border: "none",
+                            ...acceptButtonStyle,
                             background: color,
-                            color: "white",
-                            borderRadius: "8px",
                         }}
                     >
                         {acceptText}
@@ -123,3 +72,96 @@ export default function ChoiceOverlay({
         </div>
     );
 }
+
+const overlayStyle = {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 9999,
+};
+
+const dialogStyle = {
+    backgroundColor: "#1a1a1a",
+    borderRadius: "10px",
+    padding: "24px",
+    width: "340px",
+
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "20px",
+
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+
+    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+};
+
+const iconContainerStyle = {
+    width: "64px",
+    height: "64px",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    borderRadius: "50%",
+    fontSize: "32px",
+
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
+};
+
+const messageStyle = {
+    color: "white",
+    textAlign: "center",
+    lineHeight: "1.5",
+    fontSize: "16px",
+};
+
+const buttonContainerStyle = {
+    display: "flex",
+    gap: "12px",
+    width: "100%",
+    justifyContent: "center",
+};
+
+const cancelButtonStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    padding: "12px 20px",
+    border: "none",
+    borderRadius: "10px",
+
+    backgroundColor: "rgb(255 255 255 / 0.73)",
+    color: "#111827",
+
+    fontSize: "16px",
+    fontWeight: 600,
+
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+};
+
+const acceptButtonStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    padding: "12px 20px",
+    border: "none",
+    borderRadius: "10px",
+
+    color: "white",
+
+    fontSize: "16px",
+    fontWeight: 600,
+
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+};

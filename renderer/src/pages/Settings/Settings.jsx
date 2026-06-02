@@ -137,6 +137,22 @@ export default function Settings() {
             >
                 Back to Home
             </Link>
+
+            <Link
+                to="/liquidGlass"
+                style={{
+                    display: "inline-block",
+                    marginTop: "10px",
+                    padding: "10px 20px",
+                    fontSize: "16px",
+                    borderRadius: "5px",
+                    backgroundColor: "#333",
+                    color: "white",
+                    textDecoration: "none"
+                }}
+            >
+                Button test
+            </Link>
         </div>
     );
 }

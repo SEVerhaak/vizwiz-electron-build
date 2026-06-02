@@ -1,3 +1,5 @@
+import "../../App.css"
+
 export default function SelectedVizItem({ name, onRemove }) {
     const containerStyle = {
         border: "1px solid #ddd",
@@ -16,23 +18,7 @@ export default function SelectedVizItem({ name, onRemove }) {
     const buttonRowStyle = {
         display: "flex",
         gap: "8px",
-    };
-
-    const buttonStyle = {
-        padding: "6px 10px",
-        cursor: "pointer",
-        flex: 1,
-        borderRadius: "8px",
-        border: "none"
-    };
-
-    const removeButtonStyle = {
-        padding: "6px 10px",
-        cursor: "pointer",
-        flex: 1,
-        backgroundColor: "red",
-        border: "none",
-        borderRadius: "8px",
+        justifyContent: "space-between",
     };
 
     return (
@@ -40,8 +26,8 @@ export default function SelectedVizItem({ name, onRemove }) {
             <div style={titleStyle}>🎵 {name}</div>
 
             <div style={buttonRowStyle}>
-                <button style={buttonStyle}>Preview</button>
-                <button style={removeButtonStyle} onClick={() => onRemove(name)}>
+                <button disabled className={"btn-small btn-disabled"}>Preview</button>
+                <button className={"btn-small btn-danger"} onClick={() => onRemove(name)}>
                     Remove
                 </button>
             </div>

@@ -1,0 +1,121 @@
+.main-menu-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-start;
+
+    height: 100vh;
+
+    background-color: #1a1a1a;
+    color: white;
+
+    font-family: "poppins-thin", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.title {
+    margin-left: 5rem;
+    font-size: 48px;
+}
+
+.title p {
+    margin: 0;
+}
+
+.main-button-container {
+    display: flex;
+    flex-direction: row;
+    gap: 5rem;
+    align-self: center;
+}
+
+.main-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.menu-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.main-menu-button {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 300px;
+    height: 300px;
+    aspect-ratio: 1 / 1;
+
+    padding: 20px;
+    border-radius: 10px;
+
+    background-color: rgba(0, 0, 0, 0.4);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.main-menu-button:hover {
+    transform: translateY(-4px);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.menu-button-text {
+    color: white;
+    text-decoration: none;
+    text-align: center;
+
+    min-width: 150px;
+
+    font-size: 25px;
+    line-height: 1.3;
+
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.auxiliary-button-container {
+    margin-left: 5rem;
+}
+
+/* Settings Button */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 12px 20px;
+
+    border-radius: 8px;
+    text-decoration: none;
+
+    font-size: 18px;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: rgba(255, 255, 255, 0.08);
+
+    color: white;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-primary:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}

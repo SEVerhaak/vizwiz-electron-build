@@ -1,4 +1,5 @@
 import "./style/PlayListEditingPage.css";
+import "../../App.css"
 
 import {useState, useEffect} from "react";
 import Overview from "../Overview/Overview.jsx";
@@ -127,14 +128,14 @@ export default function CreatePlaylist() {
                     <div className="button-row">
                         <Link
                             to="/playlists"
-                            className="playlist-button back-button"
+                            className="btn btn-danger"
                         >
                             <FaArrowLeft size={20}/>
                             Back
                         </Link>
 
                         <button
-                            className="playlist-button next-button"
+                            className="btn btn-success"
                             onClick={() => {
                                 if (
                                     selectedViz.length === 0
