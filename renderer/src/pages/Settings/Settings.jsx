@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import MicrophoneSelector from "./MicrophoneSelector"; // 👈 add this
 import { Link } from "react-router-dom";
-import {resetAll, resetToDefaultSettings} from "../../utils/initDefaultSettings.jsx";
+import MicrophoneSelector from "./MicrophoneSelector";
+import { resetAll, resetToDefaultSettings } from "../../utils/initDefaultSettings.jsx";
+
+import "./style/settings.css";
+import "../../App.css"
 
 const PACKS = ["Default", "Extra", "Extra2", "NonMinimal", "MD1"];
 const PACKS_KEY = "vizwiz_packs";
@@ -12,8 +14,6 @@ export default function Settings() {
     const [selectedPacks, setSelectedPacks] = useState([]);
     const [presetCycle, setPresetCycle] = useState(true);
     const [presetCycleLength, setPresetCycleLength] = useState(15000);
-
-    const navigate = useNavigate();
 
     // Load packs
     useEffect(() => {
@@ -25,12 +25,11 @@ export default function Settings() {
         }
     }, []);
 
-    // Save packs
     useEffect(() => {
         localStorage.setItem(PACKS_KEY, JSON.stringify(selectedPacks));
     }, [selectedPacks]);
 
-    // Load visualizer settings
+    // Load settings
     useEffect(() => {
         const saved = JSON.parse(localStorage.getItem(VISUALIZER_SETTINGS_KEY));
         if (saved) {
@@ -39,7 +38,6 @@ export default function Settings() {
         }
     }, []);
 
-    // Save visualizer settings
     useEffect(() => {
         localStorage.setItem(
             VISUALIZER_SETTINGS_KEY,
@@ -56,20 +54,20 @@ export default function Settings() {
     };
 
     return (
-        <div style={{ padding: "50px", fontFamily: "sans-serif" }}>
-            <h1>Settings</h1>
+        <div className="settings-page">
+            <h1>Global Visualizer Settings</h1>
 
             {/* Preset Packs */}
-            <div style={{ marginBottom: "40px" }}>
+            <div className="settings-section">
                 <h2>Select Preset Packs</h2>
+
                 {PACKS.map((pack) => (
-                    <div key={pack} style={{ margin: "10px 0" }}>
-                        <label style={{ cursor: "pointer" }}>
+                    <div key={pack} className="settings-checkbox">
+                        <label>
                             <input
                                 type="checkbox"
                                 checked={selectedPacks.includes(pack)}
                                 onChange={() => togglePack(pack)}
-                                style={{ marginRight: "8px" }}
                             />
                             {pack}
                         </label>
@@ -78,81 +76,54 @@ export default function Settings() {
             </div>
 
             {/* Visualizer Settings */}
-            <div style={{
-                border: "1px solid #333",
-                padding: "20px",
-                borderRadius: "8px",
-                marginBottom: "40px"
-            }}>
-                <h2>Visualizer Settings</h2>
+            <div className="settings-box">
+                <h2 className={"vis-settings-title"}>Visualizer Settings</h2>
 
-                <div style={{ margin: "10px 0" }}>
+                <div className="settings-row">
                     <label>
                         <input
                             type="checkbox"
                             checked={presetCycle}
                             onChange={() => setPresetCycle(!presetCycle)}
-                            style={{ marginRight: "8px" }}
                         />
                         Enable Preset Cycling
                     </label>
                 </div>
 
-                <div style={{ margin: "10px 0" }}>
+                <div className="settings-row">
                     <label>
                         Preset Cycle Length (ms):
                         <input
                             type="number"
                             value={presetCycleLength}
-                            onChange={(e) => setPresetCycleLength(parseInt(e.target.value, 10) || 0)}
-                            style={{ marginLeft: "8px", width: "100px" }}
+                            onChange={(e) =>
+                                setPresetCycleLength(parseInt(e.target.value, 10) || 0)
+                            }
                         />
                     </label>
                 </div>
 
-                {/* 👇 NEW COMPONENT HERE */}
                 <MicrophoneSelector />
             </div>
 
-            <button onClick={resetToDefaultSettings}>
-                Reset to Defaults
-            </button>
+            {/* Buttons */}
+            <h3 className={"vis-settings-title"}>Having trouble with the visualizer? Try a reset!</h3>
+            <div className="settings-buttons">
+                <button className={"btn-small btn-warning"} onClick={resetToDefaultSettings}>
+                    Reset Defaults (Restores default settings)
+                </button>
 
-            <button onClick={resetAll}>
-                Reset everything!
-            </button>
+                <button className={"btn-small btn-danger"} onClick={resetAll}>
+                    Factory Reset (removes all playlists & restores settings)
+                </button>
 
-            <Link
-                to="/"
-                style={{
-                    display: "inline-block",
-                    marginTop: "10px",
-                    padding: "10px 20px",
-                    fontSize: "16px",
-                    borderRadius: "5px",
-                    backgroundColor: "#333",
-                    color: "white",
-                    textDecoration: "none"
-                }}
-            >
-                Back to Home
-            </Link>
+                {/*<Link className={"btn btn-secondary"} to="/liquidGlass">Button test</Link>*/}
 
-            <Link
-                to="/liquidGlass"
-                style={{
-                    display: "inline-block",
-                    marginTop: "10px",
-                    padding: "10px 20px",
-                    fontSize: "16px",
-                    borderRadius: "5px",
-                    backgroundColor: "#333",
-                    color: "white",
-                    textDecoration: "none"
-                }}
-            >
-                Button test
-            </Link>
+            </div>
+
+            <div className="settings-navigation-row">
+                <Link className={"btn btn-success"} to="/">Save Settings & Go Back</Link>
+            </div>
         </div>
     );
 }

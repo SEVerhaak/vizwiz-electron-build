@@ -197,13 +197,13 @@ export default function MicrophoneSelector() {
     return (
         <div
             style={{
-                marginTop: "20px",
+                marginTop: "40px",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center"
             }}
         >
-            <h2>Microphone</h2>
+            <h2>Microphone settings</h2>
 
             <select value={selectedDevice} onChange={handleChange}>
                 {devices.map((d, i) => (

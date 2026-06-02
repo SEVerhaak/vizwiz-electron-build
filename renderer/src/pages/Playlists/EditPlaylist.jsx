@@ -22,7 +22,7 @@ export default function EditPlaylist() {
         try {
             const stored = localStorage.getItem("playlist_edit");
 
-            if (!stored) return "My Playlist";
+            if (!stored) return "Error occured check console for details!";
 
             const parsed = JSON.parse(stored);
 

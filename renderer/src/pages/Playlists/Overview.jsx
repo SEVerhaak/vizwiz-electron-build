@@ -1,9 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { VscSettings } from "react-icons/vsc";
-import { IoArrowBackOutline } from "react-icons/io5";
-import { FaPlus, FaPlay, FaEdit, FaTrashAlt } from "react-icons/fa";
-import { IoMdArrowRoundBack } from "react-icons/io";
+import {Link, useNavigate} from "react-router-dom";
+import {useEffect, useState} from "react";
+import {VscSettings} from "react-icons/vsc";
+import {IoArrowBackOutline} from "react-icons/io5";
+import {FaPlus, FaPlay, FaEdit, FaTrashAlt} from "react-icons/fa";
+import {IoMdArrowRoundBack} from "react-icons/io";
 import ChoiceOverlay from "../../utils/Overlays/genericChoiceOverlay.jsx";
 
 import "./style/PlayListOverviewStyling.css";
@@ -23,6 +23,8 @@ export default function PlaylistPage() {
         try {
             const raw = localStorage.getItem(`playlist_${name}`);
             if (!raw) return null;
+
+            localStorage.setItem(`playlist_edit`, raw);
 
             const parsed = JSON.parse(raw);
             setCurrentPlaylist(parsed);
@@ -102,7 +104,7 @@ export default function PlaylistPage() {
         <div className="playlist-overview-page">
 
             <h1 className="playlist-title">
-                Audiovizwiz Select Playlist
+                Select your playlist
             </h1>
 
             <h3 className="playlist-section-title">
@@ -132,51 +134,56 @@ export default function PlaylistPage() {
                 <p>INPUT: {mic?.name || "Default Microphone"}</p>
                 <p>INPUT LEVEL:</p>
             </div>
-
-            <button
-                className="btn btn-success"
-                onClick={() => {
-                    if (!currentPlaylist) return;
-
-                    localStorage.setItem(
-                        "playlists_current",
-                        JSON.stringify(currentPlaylist)
-                    );
-
-                    navigate("/visualizer");
-                }}
-            >
-                <FaPlay size={20} />
-                Start Visualizer
-            </button>
-
-            <div className="playlist-button-row">
-
+            <div className={'top-btn-row'}>
                 {selected && playlists.length > 0 && (
-                    <Link
-                        to="/playlists/edit"
-                        className="btn btn-primary"
+                    <button
+                        className="btn btn-success"
+                        onClick={() => {
+                            if (!currentPlaylist) return;
+
+                            localStorage.setItem(
+                                "playlists_current",
+                                JSON.stringify(currentPlaylist)
+                            );
+
+                            navigate("/visualizer");
+                        }}
                     >
-                        <FaEdit size={20} />
-                        Edit Playlist
-                    </Link>
+                        <FaPlay size={20}/>
+                        Start Visualizer
+                    </button>
                 )}
 
                 <Link
                     to="/playlists/create"
                     className="btn btn-primary"
                 >
-                    <FaPlus size={20} />
+                    <FaPlus size={20}/>
                     Create New Playlist
                 </Link>
+            </div>
 
-                <button
-                    className="btn btn-danger"
-                    onClick={() => setShowOverlay(true)}
-                >
-                    <FaTrashAlt size={20} />
-                    Delete Playlist
-                </button>
+            <div className="playlist-button-row">
+
+                {selected && playlists.length > 0 && (
+                    <Link
+                        to="/playlists/edit"
+                        className="btn btn-info"
+                    >
+                        <FaEdit size={20}/>
+                        Edit Playlist
+                    </Link>
+                )}
+
+                {selected && playlists.length > 0 && (
+                    <button
+                        className="btn btn-danger"
+                        onClick={() => setShowOverlay(true)}
+                    >
+                        <FaTrashAlt size={20}/>
+                        Delete Playlist
+                    </button>
+                )}
 
                 {showOverlay && (
                     <ChoiceOverlay
@@ -191,7 +198,7 @@ export default function PlaylistPage() {
 
             <div className="playlist-bottom-row">
                 <Link to="/" className="btn btn-secondary">
-                    <IoMdArrowRoundBack size={20} />
+                    <IoMdArrowRoundBack size={20}/>
                     Back
                 </Link>
 
@@ -199,7 +206,7 @@ export default function PlaylistPage() {
                     to="/settings"
                     className="btn btn-primary"
                 >
-                    <VscSettings size={20} />
+                    <VscSettings size={20}/>
                     Settings
                 </Link>
             </div>
