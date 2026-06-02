@@ -53,6 +53,7 @@
     flex-direction: column;
     border: 1px solid #ccc;
     border-radius: 8px;
+    max-height: 90%;
 }
 
 /* EMPTY STATE */
@@ -65,6 +66,7 @@
     gap: 12px;
     margin-top: 20px;
     width: 100%;
+    justify-content: center;
 }
 
 /* shared button base */

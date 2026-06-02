@@ -1,4 +1,5 @@
 import {useState} from "react";
+import "../../App.css"
 import SelectedVizItem from "./SelectedVizItem.jsx";
 import {useNavigate} from "react-router-dom";
 import PlaylistSavePopup from "./PlaylistPopUp.jsx";
@@ -53,7 +54,7 @@ export default function PlaylistSettingsPage() {
 
                 {/* LEFT SIDE */}
                 <div className="playlist-settings">
-                    <h2 className="playlist-title">Settings</h2>
+                    <h2 className="playlist-title">Playlist Settings</h2>
                 </div>
 
                 {/* RIGHT SIDE */}
@@ -76,7 +77,7 @@ export default function PlaylistSettingsPage() {
             {/* BACK BUTTON */}
             <div className="button-row">
                 <button
-                    className="back-button"
+                    className="btn btn-danger"
                     onClick={() => {
                         if (window.history.length > 1) {
                             navigate(-1);
@@ -99,7 +100,7 @@ export default function PlaylistSettingsPage() {
 
                 {/* SAVE BUTTON */}
                 <button
-                    className="save-button"
+                    className="btn btn-success"
                     onClick={() => {
                         const mode = getPlaylistMode();
 
