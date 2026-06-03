@@ -1,11 +1,11 @@
-import {useEffect, useState} from "react";
-import "../../App.css"
+import { useEffect, useMemo, useState } from "react";
+import "../../App.css";
 import SelectedVizItem from "./SelectedVizItem.jsx";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import PlaylistSavePopup from "./PlaylistPopUp.jsx";
-import {FaArrowLeft, FaSave} from "react-icons/fa";
+import { FaArrowLeft, FaSave } from "react-icons/fa";
 import "./style/PlayListSettingsStyling.css";
-import {getPlaylistMode} from "../../utils/playlistModeSwitcher.jsx";
+import { getPlaylistMode } from "../../utils/playlistModeSwitcher.jsx";
 import MicrophoneSelector from "../Settings/MicrophoneSelector.jsx";
 
 export default function PlaylistSettingsPage() {
@@ -14,43 +14,44 @@ export default function PlaylistSettingsPage() {
 
     const mode = getPlaylistMode();
 
-    let VISUALIZER_SETTINGS_KEY;
+    // -----------------------------
+    // ✅ FIX: stable settings key
+    // -----------------------------
+    const VISUALIZER_SETTINGS_KEY = useMemo(() => {
+        if (mode === "creating") {
+            return "vizwiz_settings_temp";
+        }
 
-    useEffect(() =>{
-        console.log(mode)
-        if (mode === "creating"){
-            VISUALIZER_SETTINGS_KEY = "vizwiz_settings_temp";
-        } else if (mode === "editing"){
+        if (mode === "editing") {
             try {
                 const stored = localStorage.getItem("playlist_edit");
-
-                if (!stored) return "Error occured check console for details!";
+                if (!stored) return "vizwiz_settings_temp";
 
                 const parsed = JSON.parse(stored);
+                if (!parsed?.name) return "vizwiz_settings_temp";
 
-                VISUALIZER_SETTINGS_KEY = "vizwiz_settings_" + parsed.name;
-
-                console.log(VISUALIZER_SETTINGS_KEY)
-
+                return `vizwiz_settings_${parsed.name}`;
             } catch (e) {
-
-                VISUALIZER_SETTINGS_KEY = "vizwiz_settings_temp";
-                console.log("An error occured trying to get the playlist name");
                 console.error(e);
+                return "vizwiz_settings_temp";
             }
-
-        } else{
-            console.warn("unknown mode")
         }
-    })
 
-    // start new stuff edit with proper settings per playlist
+        return "vizwiz_settings_temp";
+    }, [mode]);
 
+    // -----------------------------
+    // settings state
+    // -----------------------------
     const [presetCycle, setPresetCycle] = useState(true);
     const [presetCycleLength, setPresetCycleLength] = useState(15000);
 
+    // load settings
     useEffect(() => {
-        const saved = JSON.parse(localStorage.getItem(VISUALIZER_SETTINGS_KEY));
+        const saved = JSON.parse(
+            localStorage.getItem(VISUALIZER_SETTINGS_KEY)
+        );
+
         if (saved) {
             if (typeof saved.presetCycle === "boolean") {
                 setPresetCycle(saved.presetCycle);
@@ -59,8 +60,9 @@ export default function PlaylistSettingsPage() {
                 setPresetCycleLength(saved.presetCycleLength);
             }
         }
-    }, []);
+    }, [VISUALIZER_SETTINGS_KEY]);
 
+    // save settings
     useEffect(() => {
         localStorage.setItem(
             VISUALIZER_SETTINGS_KEY,
@@ -69,14 +71,13 @@ export default function PlaylistSettingsPage() {
                 presetCycleLength,
             })
         );
-    }, [presetCycle, presetCycleLength]);
+    }, [presetCycle, presetCycleLength, VISUALIZER_SETTINGS_KEY]);
 
-    // end new stuff edit with proper settings per playlist
-
+    // -----------------------------
+    // playlist data
+    // -----------------------------
     const storageKey =
-        mode === "editing"
-            ? "playlist_edit"
-            : "playlist_draft";
+        mode === "editing" ? "playlist_edit" : "playlist_draft";
 
     const [selectedViz, setSelectedViz] = useState(() => {
         const saved = localStorage.getItem(storageKey);
@@ -85,7 +86,7 @@ export default function PlaylistSettingsPage() {
         try {
             const parsed = JSON.parse(saved);
             return parsed?.presets || [];
-        } catch (e) {
+        } catch {
             return [];
         }
     });
@@ -94,36 +95,102 @@ export default function PlaylistSettingsPage() {
         setSelectedViz((prev) => {
             const updated = prev.filter((item) => item !== key);
 
-            const saved = JSON.parse(localStorage.getItem(storageKey)) || {};
+            const saved =
+                JSON.parse(localStorage.getItem(storageKey)) || {};
 
             const updatedPlaylist = {
                 ...saved,
                 presets: updated,
             };
 
-            localStorage.setItem(storageKey, JSON.stringify(updatedPlaylist));
+            localStorage.setItem(
+                storageKey,
+                JSON.stringify(updatedPlaylist)
+            );
 
             return updated;
         });
     };
 
+    // -----------------------------
+    // SAVE PLAYLIST
+    // -----------------------------
+    const handleSave = () => {
+        const mode = getPlaylistMode();
+
+        // CREATE NEW
+        if (mode === "creating") {
+            setShowPopup(true);
+            return;
+        }
+
+        // EDIT EXISTING
+        if (mode === "editing") {
+            const draft = JSON.parse(
+                localStorage.getItem("playlist_edit") || "{}"
+            );
+
+            const playlistName = draft.name;
+
+            if (!playlistName) {
+                console.error("No playlist name found");
+                return;
+            }
+
+            const finalPlaylist = {
+                name: playlistName,
+                creationTime:
+                    draft.creationTime || new Date().toISOString(),
+                presets: selectedViz,
+
+                // 🔥 FIX: ALWAYS save CURRENT settings
+                settings: JSON.parse(
+                    localStorage.getItem(VISUALIZER_SETTINGS_KEY) || "{}"
+                ),
+            };
+
+            localStorage.setItem(
+                `playlist_${playlistName}`,
+                JSON.stringify(finalPlaylist)
+            );
+
+            localStorage.setItem(
+                "playlist_edit",
+                JSON.stringify(finalPlaylist)
+            );
+
+            navigate("/playlists");
+            return;
+        }
+
+        console.error("Invalid playlist mode:", mode);
+    };
+
+    // -----------------------------
+    // UI
+    // -----------------------------
     return (
         <div className="playlist-page">
-
             <div className="playlist-layout">
-
                 {/* RIGHT SIDE */}
                 <div className="playlist-settings">
-                    <h2 className="playlist-title">Playlist Settings</h2>
+                    <h2 className="playlist-title">
+                        Playlist Settings
+                    </h2>
+
                     <div className="settings-box">
-                        <h2 className={"vis-settings-title"}>Visualizer Settings</h2>
+                        <h2 className="vis-settings-title">
+                            Visualizer Settings
+                        </h2>
 
                         <div className="settings-row">
                             <label>
                                 <input
                                     type="checkbox"
                                     checked={presetCycle}
-                                    onChange={() => setPresetCycle(!presetCycle)}
+                                    onChange={() =>
+                                        setPresetCycle(!presetCycle)
+                                    }
                                 />
                                 Enable Preset Cycling
                             </label>
@@ -136,18 +203,25 @@ export default function PlaylistSettingsPage() {
                                     type="number"
                                     value={presetCycleLength}
                                     onChange={(e) =>
-                                        setPresetCycleLength(parseInt(e.target.value, 10) || 0)
+                                        setPresetCycleLength(
+                                            parseInt(e.target.value, 10) ||
+                                            0
+                                        )
                                     }
                                 />
                             </label>
                         </div>
+
+                        <MicrophoneSelector />
                     </div>
                 </div>
 
                 {/* LEFT SIDE */}
                 <div className="playlist-preview">
                     {selectedViz.length === 0 ? (
-                        <p className="empty-state">No visualizers selected</p>
+                        <p className="empty-state">
+                            No visualizers selected
+                        </p>
                     ) : (
                         selectedViz.map((item) => (
                             <SelectedVizItem
@@ -158,26 +232,22 @@ export default function PlaylistSettingsPage() {
                         ))
                     )}
                 </div>
-
             </div>
 
-            {/* BACK BUTTON */}
+            {/* BACK / SAVE */}
             <div className="button-row">
                 <button
                     className="btn btn-danger"
-                    onClick={() => {
-                        if (window.history.length > 1) {
-                            navigate(-1);
-                        } else {
-                            navigate("/");
-                        }
-                    }}
+                    onClick={() =>
+                        window.history.length > 1
+                            ? navigate(-1)
+                            : navigate("/")
+                    }
                 >
-                    <FaArrowLeft/>
+                    <FaArrowLeft />
                     Back
                 </button>
 
-                {/* POPUP */}
                 {showPopup && (
                     <PlaylistSavePopup
                         currentPresets={selectedViz}
@@ -185,60 +255,11 @@ export default function PlaylistSettingsPage() {
                     />
                 )}
 
-                {/* SAVE BUTTON */}
                 <button
                     className="btn btn-success"
-                    onClick={() => {
-                        const mode = getPlaylistMode();
-
-                        // Creating a new playlist
-                        if (mode === "creating") {
-                            setShowPopup(true);
-                            return;
-                        }
-
-                        // Editing an existing playlist
-                        if (mode === "editing") {
-                            const draft = JSON.parse(
-                                localStorage.getItem("playlist_edit") || "{}"
-                            );
-
-                            const playlistName = draft.name;
-
-                            if (!playlistName) {
-                                console.error(
-                                    "No playlist name found in playlist_edit"
-                                );
-                                return;
-                            }
-
-                            const finalPlaylist = {
-                                name: playlistName,
-                                creationTime:
-                                    draft.creationTime ||
-                                    new Date().toISOString(),
-                                presets: selectedViz,
-                                settings: draft.settings || {},
-                            };
-
-                            localStorage.setItem(
-                                `playlist_${playlistName}`,
-                                JSON.stringify(finalPlaylist)
-                            );
-
-                            localStorage.setItem(
-                                "playlist_edit",
-                                JSON.stringify(finalPlaylist)
-                            );
-
-                            navigate("/playlists");
-                            return;
-                        }
-
-                        console.error("Invalid playlist mode:", mode);
-                    }}
+                    onClick={handleSave}
                 >
-                    <FaSave/>
+                    <FaSave />
                     Save Playlist
                 </button>
             </div>

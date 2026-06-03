@@ -23,9 +23,35 @@ export default function Visualizer() {
     const selectRef = useRef(null);
 
     // Retrieve visualizer settings
-    const savedSettings = JSON.parse(localStorage.getItem("vizwiz_settings")) || {};
-    const presetCycle = typeof savedSettings.presetCycle === "boolean" ? savedSettings.presetCycle : true;
-    const presetCycleLength = typeof savedSettings.presetCycleLength === "number" ? savedSettings.presetCycleLength : 15000;
+// =========================
+// SETTINGS RESOLUTION
+// =========================
+
+    const currentPlaylist = JSON.parse(
+        localStorage.getItem("playlists_current")
+    );
+
+    // 1. Try playlist settings first
+    const playlistSettings =
+        currentPlaylist?.settings || null;
+
+    // 2. Fallback to global settings
+    const globalSettings =
+        JSON.parse(localStorage.getItem("vizwiz_settings")) || {};
+
+    // 3. Final resolved settings
+    const activeSettings = playlistSettings || globalSettings;
+
+    // 4. Apply defaults
+    const presetCycle =
+        typeof activeSettings.presetCycle === "boolean"
+            ? activeSettings.presetCycle
+            : true;
+
+    const presetCycleLength =
+        typeof activeSettings.presetCycleLength === "number"
+            ? activeSettings.presetCycleLength
+            : 15000;
 
     console.log("Preset Cycle:", presetCycle);
     console.log("Preset Cycle Length (ms):", presetCycleLength);

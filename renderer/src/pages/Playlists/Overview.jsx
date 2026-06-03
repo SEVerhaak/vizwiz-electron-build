@@ -17,6 +17,7 @@ export default function PlaylistPage() {
     const [playlists, setPlaylists] = useState([]);
     const [selected, setSelected] = useState("");
     const [currentPlaylist, setCurrentPlaylist] = useState(null);
+    const [playlistSettings, setPlaylistSettings] = useState(null);
 
     const loadPlaylist = (name) => {
         if (!name) return null;
@@ -28,6 +29,8 @@ export default function PlaylistPage() {
             localStorage.setItem(`playlist_edit`, raw);
 
             const parsed = JSON.parse(raw);
+            setPlaylistSettings(parsed.settings || {});
+            console.log(parsed.settings);
             setCurrentPlaylist(parsed);
             return parsed;
         } catch (e) {
@@ -135,11 +138,23 @@ export default function PlaylistPage() {
 
                 <div className="playlist-info-box">
                     <p>PRESET AMOUNT: {presetAmount}</p>
-                    <p>RANDOMIZE ORDER:</p>
-                    <p>CYCLE BETWEEN PRESETS:</p>
+
+                    <p>
+                        CYCLE BETWEEN PRESETS:{" "}
+                        {playlistSettings?.presetCycle ? "ON" : "OFF"}
+                    </p>
+
+                    <p>
+                        CYCLE LENGTH:{" "}
+                        {playlistSettings?.presetCycleLength
+                            ? `${playlistSettings.presetCycleLength} ms`
+                            : "Default"}
+                    </p>
+
                     <p>INPUT: {mic?.name || "Default Microphone"}</p>
-                    <p>INPUT LEVEL:</p>
+                    <p>INPUT LEVEL: --</p>
                 </div>
+
                 <div className={'top-btn-row'}>
                     {selected && playlists.length > 0 && (
                         <button
