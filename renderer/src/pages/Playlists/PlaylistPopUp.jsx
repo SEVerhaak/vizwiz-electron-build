@@ -8,7 +8,7 @@ export default function PlaylistSavePopup({ onClose, currentPresets = [] }) {
     const [name, setName] = useState("");
 
     const savePlaylist = () => {
-        setError(""); // reset previous error
+        setError("");
 
         if (!name.trim()) {
             setError("Please enter a playlist name.");
@@ -29,27 +29,39 @@ export default function PlaylistSavePopup({ onClose, currentPresets = [] }) {
         }
 
         const playlistKey = `playlist_${name}`;
+        const settingsTempKey = "vizwiz_settings_temp";
+        const settingsFinalKey = `vizwiz_settings_${name}`;
+
+        // ✅ get temp settings
+        const tempSettings =
+            JSON.parse(localStorage.getItem(settingsTempKey)) || {};
 
         const playlist = {
             name,
             creationTime: new Date().toISOString(),
             presets: currentPresets,
-            settings: {},
+            settings: tempSettings, // 👈 SNAPSHOT HERE
         };
 
         // Save playlist
         localStorage.setItem(playlistKey, JSON.stringify(playlist));
 
+        // Save playlist-specific settings
+        localStorage.setItem(settingsFinalKey, JSON.stringify(tempSettings));
+
         // Update master list
         const updatedList = [...existingList, name];
         localStorage.setItem("playlist_list", JSON.stringify(updatedList));
 
-        // remove draft after successful save
+        // remove temp settings AFTER save (optional but recommended)
+        localStorage.removeItem(settingsTempKey);
+
+        // remove draft playlist
         removeDraftPlaylist();
 
-        // Navigate after saving
         navigate("/playlists");
-    };    return (
+    };
+    return (
         <div
             style={{
                 position: "fixed",
