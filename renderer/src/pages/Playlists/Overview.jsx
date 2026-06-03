@@ -8,6 +8,7 @@ import ChoiceOverlay from "../../utils/Overlays/genericChoiceOverlay.jsx";
 
 import "./style/PlayListOverviewStyling.css";
 import "../../App.css"
+import {GradFlow, PRESETS} from "gradflow";
 
 export default function PlaylistPage() {
     const navigate = useNavigate();
@@ -101,116 +102,122 @@ export default function PlaylistPage() {
     })();
 
     return (
-        <div className="playlist-overview-page">
-
-            <h1 className="playlist-title">
-                Select your playlist
-            </h1>
-
-            <h3 className="playlist-section-title">
-                Current Player Settings
-            </h3>
-
-            <select
-                className="playlist-dropdown"
-                value={selected}
-                onChange={(e) => handleSelect(e.target.value)}
-            >
-                {playlists.length === 0 ? (
-                    <option>No playlists found</option>
-                ) : (
-                    playlists.map((name) => (
-                        <option key={name} value={name}>
-                            {name}
-                        </option>
-                    ))
-                )}
-            </select>
-
-            <div className="playlist-info-box">
-                <p>PRESET AMOUNT: {presetAmount}</p>
-                <p>RANDOMIZE ORDER:</p>
-                <p>CYCLE BETWEEN PRESETS:</p>
-                <p>INPUT: {mic?.name || "Default Microphone"}</p>
-                <p>INPUT LEVEL:</p>
+        <div>
+            <div className="background">
+                <GradFlow config={PRESETS.mystic} />
             </div>
-            <div className={'top-btn-row'}>
-                {selected && playlists.length > 0 && (
-                    <button
-                        className="btn btn-success"
-                        onClick={() => {
-                            if (!currentPlaylist) return;
 
-                            localStorage.setItem(
-                                "playlists_current",
-                                JSON.stringify(currentPlaylist)
-                            );
+            <div className="playlist-overview-page">
 
-                            navigate("/visualizer");
-                        }}
-                    >
-                        <FaPlay size={20}/>
-                        Start Visualizer
-                    </button>
-                )}
+                <h1 className="playlist-title">
+                    Select your playlist
+                </h1>
 
-                <Link
-                    to="/playlists/create"
-                    className="btn btn-primary"
+                <h3 className="playlist-section-title">
+                    Current Player Settings
+                </h3>
+
+                <select
+                    className="playlist-dropdown"
+                    value={selected}
+                    onChange={(e) => handleSelect(e.target.value)}
                 >
-                    <FaPlus size={20}/>
-                    Create New Playlist
-                </Link>
-            </div>
+                    {playlists.length === 0 ? (
+                        <option>No playlists found</option>
+                    ) : (
+                        playlists.map((name) => (
+                            <option key={name} value={name}>
+                                {name}
+                            </option>
+                        ))
+                    )}
+                </select>
 
-            <div className="playlist-button-row">
+                <div className="playlist-info-box">
+                    <p>PRESET AMOUNT: {presetAmount}</p>
+                    <p>RANDOMIZE ORDER:</p>
+                    <p>CYCLE BETWEEN PRESETS:</p>
+                    <p>INPUT: {mic?.name || "Default Microphone"}</p>
+                    <p>INPUT LEVEL:</p>
+                </div>
+                <div className={'top-btn-row'}>
+                    {selected && playlists.length > 0 && (
+                        <button
+                            className="btn btn-success"
+                            onClick={() => {
+                                if (!currentPlaylist) return;
 
-                {selected && playlists.length > 0 && (
+                                localStorage.setItem(
+                                    "playlists_current",
+                                    JSON.stringify(currentPlaylist)
+                                );
+
+                                navigate("/visualizer");
+                            }}
+                        >
+                            <FaPlay size={20}/>
+                            Start Visualizer
+                        </button>
+                    )}
+
                     <Link
-                        to="/playlists/edit"
-                        className="btn btn-info"
+                        to="/playlists/create"
+                        className="btn btn-primary"
                     >
-                        <FaEdit size={20}/>
-                        Edit Playlist
+                        <FaPlus size={20}/>
+                        Create New Playlist
                     </Link>
-                )}
+                </div>
 
-                {selected && playlists.length > 0 && (
-                    <button
-                        className="btn btn-danger"
-                        onClick={() => setShowOverlay(true)}
+                <div className="playlist-button-row">
+
+                    {selected && playlists.length > 0 && (
+                        <Link
+                            to="/playlists/edit"
+                            className="btn btn-info"
+                        >
+                            <FaEdit size={20}/>
+                            Edit Playlist
+                        </Link>
+                    )}
+
+                    {selected && playlists.length > 0 && (
+                        <button
+                            className="btn btn-danger"
+                            onClick={() => setShowOverlay(true)}
+                        >
+                            <FaTrashAlt size={20}/>
+                            Delete Playlist
+                        </button>
+                    )}
+
+                    {showOverlay && (
+                        <ChoiceOverlay
+                            message="Are you sure you want to delete this item?"
+                            severity="error"
+                            acceptText="Delete"
+                            rejectText="Cancel"
+                            onChoice={handleResult}
+                        />
+                    )}
+                </div>
+
+                <div className="playlist-bottom-row">
+                    <Link to="/" className="btn btn-secondary">
+                        <IoMdArrowRoundBack size={20}/>
+                        Back
+                    </Link>
+
+                    <Link
+                        to="/settings"
+                        className="btn btn-primary"
                     >
-                        <FaTrashAlt size={20}/>
-                        Delete Playlist
-                    </button>
-                )}
+                        <VscSettings size={20}/>
+                        Settings
+                    </Link>
+                </div>
 
-                {showOverlay && (
-                    <ChoiceOverlay
-                        message="Are you sure you want to delete this item?"
-                        severity="error"
-                        acceptText="Delete"
-                        rejectText="Cancel"
-                        onChoice={handleResult}
-                    />
-                )}
             </div>
-
-            <div className="playlist-bottom-row">
-                <Link to="/" className="btn btn-secondary">
-                    <IoMdArrowRoundBack size={20}/>
-                    Back
-                </Link>
-
-                <Link
-                    to="/settings"
-                    className="btn btn-primary"
-                >
-                    <VscSettings size={20}/>
-                    Settings
-                </Link>
-            </div>
-
         </div>
     );
 }

@@ -10,6 +10,7 @@ import {GrFormNextLink} from "react-icons/gr";
 import ErrorOverlay from "../../utils/Overlays/genericErrorOverlay.jsx";
 import {setPlaylistMode} from "../../utils/playlistModeSwitcher.jsx";
 import {FaArrowLeft, FaArrowRight} from "react-icons/fa";
+import {GradFlow, PRESETS} from "gradflow";
 
 export default function CreatePlaylist() {
     setPlaylistMode("creating");
@@ -86,91 +87,96 @@ export default function CreatePlaylist() {
     };
 
     return (
-        <div className="edit-playlist-page">
-            <h1>Create New Playlist</h1>
-
-            <div className="columns-wrapper">
-                {/* LEFT */}
-                <div className="left-column">
-                    <div className="left-header">
-                        <h2 className="section-title">
-                            Preset Overview
-                        </h2>
-                    </div>
-
-                    <div className="overview-container">
-                        <Overview
-                            onVizClick={handleVizClick}
-                        />
-                    </div>
-                </div>
-
-                {/* RIGHT */}
-                <div className="right-column">
-                    <h2 className="selection-title">Selected Visualizers</h2>
-
-                    <div className="right-box">
-                        {selectedViz.length === 0 ? (
-                            <p>
-                                No visualizers selected yet
-                            </p>
-                        ) : (
-                            selectedViz.map((item) => (
-                                <SelectedVizItem
-                                    key={item}
-                                    name={item}
-                                    onRemove={removeViz}
-                                />
-                            ))
-                        )}
-                    </div>
-
-                    <div className="button-row">
-                        <Link
-                            to="/playlists"
-                            className="btn btn-danger"
-                        >
-                            <FaArrowLeft size={20}/>
-                            Back
-                        </Link>
-
-                        <button
-                            className="btn btn-success"
-                            onClick={() => {
-                                if (
-                                    selectedViz.length === 0
-                                ) {
-                                    setErrorState({
-                                        message:
-                                            "You need to select at least one visualizer before continuing.",
-                                        severity:
-                                            "warning",
-                                    });
-
-                                    return;
-                                }
-
-                                navigate(
-                                    "/playlists/settings"
-                                );
-                            }}
-                        >
-                            Next step
-                            <FaArrowRight size={20}/>
-                        </button>
-                    </div>
-                </div>
+        <div>
+            <div className="background">
+                <GradFlow config={PRESETS.mystic}/>
             </div>
+            <div className="edit-playlist-page">
+                <h1>Create New Playlist</h1>
 
-            {errorState && (
-                <ErrorOverlay
-                    message={errorState.message}
-                    severity={errorState.severity}
-                    onClose={() =>
-                        setErrorState(null)
-                    }
-                />
-            )}
+                <div className="columns-wrapper">
+                    {/* LEFT */}
+                    <div className="left-column">
+                        <div className="left-header">
+                            <h2 className="section-title">
+                                Preset Overview
+                            </h2>
+                        </div>
+
+                        <div className="overview-container">
+                            <Overview
+                                onVizClick={handleVizClick}
+                            />
+                        </div>
+                    </div>
+
+                    {/* RIGHT */}
+                    <div className="right-column">
+                        <h2 className="selection-title">Selected Visualizers</h2>
+
+                        <div className="right-box">
+                            {selectedViz.length === 0 ? (
+                                <p>
+                                    No visualizers selected yet
+                                </p>
+                            ) : (
+                                selectedViz.map((item) => (
+                                    <SelectedVizItem
+                                        key={item}
+                                        name={item}
+                                        onRemove={removeViz}
+                                    />
+                                ))
+                            )}
+                        </div>
+
+                        <div className="button-row">
+                            <Link
+                                to="/playlists"
+                                className="btn btn-danger"
+                            >
+                                <FaArrowLeft size={20}/>
+                                Back
+                            </Link>
+
+                            <button
+                                className="btn btn-success"
+                                onClick={() => {
+                                    if (
+                                        selectedViz.length === 0
+                                    ) {
+                                        setErrorState({
+                                            message:
+                                                "You need to select at least one visualizer before continuing.",
+                                            severity:
+                                                "warning",
+                                        });
+
+                                        return;
+                                    }
+
+                                    navigate(
+                                        "/playlists/settings"
+                                    );
+                                }}
+                            >
+                                Next step
+                                <FaArrowRight size={20}/>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {errorState && (
+                    <ErrorOverlay
+                        message={errorState.message}
+                        severity={errorState.severity}
+                        onClose={() =>
+                            setErrorState(null)
+                        }
+                    />
+                )}
+            </div>
         </div>
     );
 }
