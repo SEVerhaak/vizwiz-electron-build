@@ -2,6 +2,7 @@ import {Link} from "react-router-dom";
 import {IoPlayCircle} from "react-icons/io5";
 import {TbPlaylistAdd} from "react-icons/tb";
 import {VscSettings} from "react-icons/vsc";
+import { IoMdHelpCircle } from "react-icons/io";
 import { GradFlow, PRESETS } from 'gradflow'
 
 import "./style/Home.css";
@@ -51,6 +52,11 @@ export default function Home() {
                         <Link to="/settings" className="btn btn-primary">
                             <VscSettings size={20}/>
                             Settings
+                        </Link>
+
+                        <Link to="/help" className="btn btn-primary">
+                            <IoMdHelpCircle size={20}/>
+                            Help
                         </Link>
                     </nav>
                 </div>

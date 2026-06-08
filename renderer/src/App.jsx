@@ -8,7 +8,7 @@ import PlaylistPage from "./pages/Playlists/Overview.jsx";
 import CreatePlaylist from "./pages/Playlists/CreatePlaylist.jsx";
 import PlaylistSettingsPage from "./pages/Playlists/PlaylistSettings.jsx";
 import EditPlaylist from "./pages/Playlists/EditPlaylist.jsx";
-import ButtonShowcase from "./pages/Test-pages/ButtonShowcase.jsx";
+import HDMIHelp from "./pages/Help/HelpHDMI.jsx";
 
 export default function App() {
     return (
@@ -19,7 +19,7 @@ export default function App() {
                 <Route path="/editor" element={<Editor />} />
                 <Route path="/overview" element={<Overview />} />
                 <Route path="/settings" element={<Settings />} />
-                <Route path="/liquidGlass" element={<ButtonShowcase />} />
+                <Route path="/help" element={<HDMIHelp />} />
                 <Route path="/playlists" element={<PlaylistPage />} />
                 <Route path="/playlists/create" element={<CreatePlaylist />} />
                 <Route path="/playlists/edit" element={<EditPlaylist />} />

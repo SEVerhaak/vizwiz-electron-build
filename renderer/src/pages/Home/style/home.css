@@ -99,6 +99,12 @@
     margin-left: 5rem;
 }
 
+.auxiliary-button-container nav {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
 /* Settings Button */
 
 .btn {

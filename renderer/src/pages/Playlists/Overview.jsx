@@ -152,7 +152,6 @@ export default function PlaylistPage() {
                     </p>
 
                     <p>INPUT: {mic?.name || "Default Microphone"}</p>
-                    <p>INPUT LEVEL: --</p>
                 </div>
 
                 <div className={'top-btn-row'}>

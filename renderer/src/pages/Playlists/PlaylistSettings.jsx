@@ -211,8 +211,6 @@ export default function PlaylistSettingsPage() {
                                 />
                             </label>
                         </div>
-
-                        <MicrophoneSelector />
                     </div>
                 </div>
 
