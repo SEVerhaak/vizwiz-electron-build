@@ -12,6 +12,48 @@
   "type": "commonjs",
   "devDependencies": {
     "electron": "^41.0.0",
+    "electron-builder": "^26.15.3",
     "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "com.vizwiz.app",
+    "productName": "VizWiz",
+    "mac": {
+      "target": "dmg",
+      "icon": "icon/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility",
+      "icon": "icon/Icon-iOS-Default-1024x1024@1x.png"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 90,
+          "type": "file",
+          "path": "build-assets/VizWiz-Fix.command"
+        },
+        {
+          "x": 130,
+          "y": 220,
+          "type": "file",
+          "path": "build-assets/VizWiz.app"
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 410,
+          "y": 90,
+          "type": "file",
+          "path": "build-assets/installation_instructions.txt"
+        }
+      ]
+    }
   }
 }

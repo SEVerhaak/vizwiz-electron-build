@@ -1,0 +1,6 @@
+1. Open VizWiz-x.x.x-arm64.dmg
+2. Drag VizWiz.app to the applications folder
+3. Run VizWiz-Fix.command
+
+3a. If the command cannot be run, you can manually apply the following command in terminal:
+xattr -cr /Applications/VizWiz.app
