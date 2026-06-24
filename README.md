@@ -9,6 +9,8 @@ The project uses a nested setup:
 
 ---
 
+![Logo](icon/logo.png)
+
 ## Installation:
 
 Clone the repository:
